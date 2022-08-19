@@ -13,13 +13,13 @@ class Vote < ActiveRecord::Base
   belongs_to :loser_choice, :class_name => "Choice", :foreign_key => "loser_choice_id", :counter_cache => :losses
   has_one :appearance, :as => :answerable
 
-  scope :recent, lambda { |*args| {:conditions => ["created_at > ?", (args.first || Date.today.beginning_of_day)]} }
-  scope :with_question, lambda { |*args| {:conditions => {:question_id => args.first }} }
-  scope :with_voter_ids, lambda { |*args| {:conditions => {:voter_id=> args.first }} }
-  scope :active, :include => :choice, :conditions => { 'choices.active' => true }
-  scope :active_loser, :include => :loser_choice, :conditions => { 'choices.active' => true }
+  scope :recent, lambda { |*args| where("created_at > ?", (args.first || Date.today.beginning_of_day)) }
+  scope :with_question, lambda { |*args|  where("question_id = ?", args.first) }
+  scope :with_voter_ids, lambda { |*args| where("voter_id = ?", args.first) }
+  scope :active, -> { includes(:choice).where('choices.active = ?', true) }
+  scope :active_loser, -> { includes(:loser_choice).where('choices.active = ?', true) }
 
-  default_scope :conditions => "#{table_name}.valid_record = 1"
+  default_scope -> { where("#{table_name}.valid_record = 1") }
 
   serialize :tracking
 

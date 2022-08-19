@@ -4,7 +4,7 @@ class Appearance < ActiveRecord::Base
   belongs_to :question
   belongs_to :answerable, :polymorphic => true
 
-  default_scope :conditions => {:valid_record => true}
+  default_scope -> { where("valid_record = ?", true)}
 
   def answered?
     !self.answerable_id.nil?

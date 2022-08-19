@@ -13,14 +13,14 @@ class Prompt < ActiveRecord::Base
   validates_presence_of :left_choice, :on => :create, :message => "can't be blank"
   validates_presence_of :right_choice, :on => :create, :message => "can't be blank"
 
-  scope :with_left_choice, lambda { |*args| {:conditions => ["left_choice_id = ?", (args.first.id)]} }
-  scope :with_right_choice, lambda { |*args| {:conditions => ["right_choice_id = ?", (args.first.id)]} }
-  scope :with_choice, lambda { |*args| {:conditions => ["(right_choice_id = ?) OR (left_choice_id = ?)", (args.first.id)]} }
-  scope :with_choice_id, lambda { |*args| {:conditions => ["(right_choice_id = ?) OR (left_choice_id = ?)", (args.first)]} }
+  scope :with_left_choice, lambda { |*args| where("left_choice_id = ?", (args.first.id)) }
+  scope :with_right_choice, lambda { |*args| where("right_choice_id = ?", (args.first.id)) }
+  scope :with_choice, lambda { |*args| where("(right_choice_id = ?) OR (left_choice_id = ?)", (args.first.id)) }
+  scope :with_choice_id, lambda { |*args| where("(right_choice_id = ?) OR (left_choice_id = ?)", (args.first)) }
   #scope :voted_on_by, :include => :choices, :conditions =>
   #scope :voted_on_by, proc {|u| { :conditions => { :methodology => methodology } } }
 
-  scope :active, -> { :include => [:left_choice, :right_choice], :conditions => { 'left_choice.active' => true, 'right_choice.active' => true }}
+  scope :active, -> { includes(:left_choice,:right_choice).where('left_choice.active = ? AND right_choice.active = ?', true, true) }
   scope :ids_only, ->  { :select => 'id' }
 
   attr_protected :votes_count, :left_choice_id, :right_choice_id
