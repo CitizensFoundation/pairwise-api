@@ -11,7 +11,7 @@ todo
 .bundle
 bin/
 vendor/ruby
-config/database.yml
+#config/database.yml
 
 # Ignore bundler config.
 /.bundle
