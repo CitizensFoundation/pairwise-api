@@ -15,8 +15,8 @@ When /^a Formtastic "new" view for "posts" should be generated$/ do
     "<h1>New post</h1>\n\n"                                                <<
     "<% semantic_form_for(@post) do |form| %>\n"                           <<
     "  <%= form.inputs %>\n"                                               <<
-    "  <% form.buttons do %>\n"                                            <<
-    "    <%= form.commit_button 'Create',\n"                               <<
+    "  <% form.actions do %>\n"                                            <<
+    "    <%= form.submit 'Create',\n"                               <<
     "          :button_html => { :disable_with => 'Please wait...' } %>\n" <<
     "  <% end %>\n"                                                        <<
     "<% end %>"
@@ -32,8 +32,8 @@ Then /^a Formtastic "new" view for "posts" should be generated with fields$/ do
     "    <%= form.input :body %>\n"                                        <<
     "    <%= form.input :user %>\n"                                        <<
     "  <% end %>\n"                                                        <<
-    "  <% form.buttons do %>\n"                                            <<
-    "    <%= form.commit_button 'Create',\n"                               <<
+    "  <% form.actions do %>\n"                                            <<
+    "    <%= form.submit 'Create',\n"                               <<
     "          :button_html => { :disable_with => 'Please wait...' } %>\n" <<
     "  <% end %>\n"                                                        <<
     "<% end %>"

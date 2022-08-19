@@ -10,8 +10,8 @@
 <% else -%>
   <%%= form.inputs %>
 <% end -%>
-  <%% form.buttons do %>
-    <%%= form.commit_button 'Create',
+  <%% form.actions do %>
+    <%%= form.submit 'Create',
           :button_html => { :disable_with => 'Please wait...' } %>
   <%% end %>
 <%% end %>

@@ -23,7 +23,7 @@ gem "xml-simple", "1.1.9",
     :require     => "xmlsimple"
 #gem "yfactorial-utility_scopes", "0.2.3",
 #    :require     => "utility_scopes"
-gem "formtastic", "~> 0.2.2"
+gem "formtastic", "4.0.0"
 gem "inherited_resources",  "1.13.1"
 gem "has_scope",  "0.8.0"
 gem "responders",  "3.0.1"

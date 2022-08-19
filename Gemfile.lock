@@ -111,7 +111,8 @@ GEM
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
-    formtastic (0.2.5)
+    formtastic (4.0.0)
+      actionpack (>= 5.2.0)
     gherkin (2.5.4)
       json (>= 1.4.6)
     globalid (1.0.0)
@@ -277,7 +278,7 @@ DEPENDENCIES
   factory_girl (= 1.2.3)
   fakeweb (= 1.2.5)
   fastercsv (= 1.5.1)
-  formtastic (~> 0.2.2)
+  formtastic (= 4.0.0)
   has_scope (= 0.8.0)
   iconv
   inherited_resources (= 1.13.1)

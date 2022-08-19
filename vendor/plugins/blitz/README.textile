@@ -84,8 +84,8 @@ generates a Formtastic view which reflects on your current schema...
     <%= form.input :body %>
     <%= form.input :user %>
   <% end %>
-  <% form.buttons do %>
-    <%= form.commit_button 'Create',
+  <% form.actions do %>
+    <%= form.submit 'Create',
           :button_html => { :disable_with => 'Please wait...' } %>
   <% end %>
 <% end %></code></pre>
@@ -96,8 +96,8 @@ If no ActiveRecord is defined named Post, it will generate...
 
 <% semantic_form_for(@post) do |form| %>
   <% form.inputs %>
-  <% form.buttons do %>
-    <%= form.commit_button 'Create',
+  <% form.actions do %>
+    <%= form.submit 'Create',
           :button_html => { :disable_with => 'Please wait...' } %>
   <% end %>
 <% end %></code></pre>
