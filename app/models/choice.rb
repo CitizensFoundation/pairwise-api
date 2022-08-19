@@ -1,14 +1,14 @@
 class Choice < ActiveRecord::Base
   acts_as_versioned :if_changed => [:data, :creator_id, :question_id, :active]
-  
+
   belongs_to :question, :counter_cache => true
   belongs_to :creator, :class_name => "Visitor", :foreign_key => "creator_id"
-  
+
   validates_presence_of :creator, :on => :create, :message => "can't be blank"
   validates_presence_of :question, :on => :create, :message => "can't be blank"
   validates_presence_of :data
   #validates_length_of :item, :maximum => 140
-  
+
   has_many :votes
   has_many :losing_votes, :class_name => "Vote", :foreign_key => "loser_choice_id"
   has_many :flags
@@ -20,12 +20,14 @@ class Choice < ActiveRecord::Base
   has_many :appearances_on_the_right, :through => :prompts_on_the_right, :source => :appearances
   has_many :skips_on_the_left, :through => :prompts_on_the_left, :source => :skips
   has_many :skips_on_the_right, :through => :prompts_on_the_right, :source => :skips
-  named_scope :active, :conditions => { :active => true }
-  named_scope :inactive, :conditions => { :active => false}
-  named_scope :not_created_by, lambda { |creator_id|
-    { :conditions => ["creator_id <> ?", creator_id] }
+
+  # https://stackoverflow.com/questions/69600394/rails-5-how-to-convert-this-named-scope-to-a-scope
+  scope :active, -> { where("active = ?", true) }
+  scope :inactive, -> { where("active = ?", false) }
+  scope :not_created_by, lambda { |creator_id|
+    where(["creator_id <> ?", creator_id])
   }
- 
+
   after_save :update_questions_counter
   after_save :update_prompt_queue
 
@@ -37,7 +39,7 @@ class Choice < ActiveRecord::Base
     unless part_of_batch_create
       self.question.update_attribute(:inactive_choices_count, self.question.choices.inactive.length)
     end
-  end 
+  end
 
   # if changing a choice to active, we want to regenerate prompts
   def update_prompt_queue
@@ -50,7 +52,7 @@ class Choice < ActiveRecord::Base
       end
     end
   end
-  
+
   def before_create
     unless self.score
       self.score = 50.0
@@ -63,11 +65,11 @@ class Choice < ActiveRecord::Base
     end
     return true #so active record will save
   end
-  
+
   def compute_score
     (wins.to_f+1)/(wins+1+losses+1) * 100
   end
-  
+
   def compute_score!
     self.score = compute_score
     conn = Choice.connection
@@ -105,15 +107,15 @@ class Choice < ActiveRecord::Base
     (self.active = true)
     self.save!
   end
-  
+
   def deactivate!
     (self.active = false)
     self.save!
   end
-  
+
   protected
 
-  
+
   def generate_prompts
     #once a choice is added, we need to generate the new prompts (possible combinations of choices)
     #do this in a new process (via delayed jobs)? Maybe just for uploaded ideas
@@ -127,7 +129,7 @@ class Choice < ActiveRecord::Base
     previous_choices.each do |r|
 	inserts.push("(NULL, #{self.question_id}, NULL, #{self.id}, '#{timestring}', '#{timestring}', NULL, 0, #{r.id}, NULL, NULL)")
     end
-    #add prompts with this choice on the right 
+    #add prompts with this choice on the right
     previous_choices.each do |l|
 	inserts.push("(NULL, #{self.question_id}, NULL, #{l.id}, '#{timestring}', '#{timestring}', NULL, 0, #{self.id}, NULL, NULL)")
     end

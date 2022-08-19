@@ -13,11 +13,11 @@ class Vote < ActiveRecord::Base
   belongs_to :loser_choice, :class_name => "Choice", :foreign_key => "loser_choice_id", :counter_cache => :losses
   has_one :appearance, :as => :answerable
 
-  named_scope :recent, lambda { |*args| {:conditions => ["created_at > ?", (args.first || Date.today.beginning_of_day)]} }
-  named_scope :with_question, lambda { |*args| {:conditions => {:question_id => args.first }} }
-  named_scope :with_voter_ids, lambda { |*args| {:conditions => {:voter_id=> args.first }} }
-  named_scope :active, :include => :choice, :conditions => { 'choices.active' => true }
-  named_scope :active_loser, :include => :loser_choice, :conditions => { 'choices.active' => true }
+  scope :recent, lambda { |*args| {:conditions => ["created_at > ?", (args.first || Date.today.beginning_of_day)]} }
+  scope :with_question, lambda { |*args| {:conditions => {:question_id => args.first }} }
+  scope :with_voter_ids, lambda { |*args| {:conditions => {:voter_id=> args.first }} }
+  scope :active, :include => :choice, :conditions => { 'choices.active' => true }
+  scope :active_loser, :include => :loser_choice, :conditions => { 'choices.active' => true }
 
   default_scope :conditions => "#{table_name}.valid_record = 1"
 
@@ -42,8 +42,8 @@ class Vote < ActiveRecord::Base
     choice.reload              # make sure we're using updated counter values
     choice.compute_score!
   end
-  
-  def update_loser_choice 
+
+  def update_loser_choice
     loser_choice.reload
     loser_choice.compute_score!
   end

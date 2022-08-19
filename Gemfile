@@ -2,6 +2,9 @@ source "https://rubygems.org"
 
 ruby '3.1.2'
 
+gem 'protected_attributes_continued'
+gem "memoist"
+gem "rtiss_acts_as_versioned"
 gem "delayed_job_active_record"
 gem "puma"
 gem "passenger"

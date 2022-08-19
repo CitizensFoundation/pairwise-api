@@ -1,14 +1,16 @@
+#require 'memoist'
+
 class Question < ActiveRecord::Base
-  acts_as_versioned
-  
+  #acts_as_versioned
+
   require 'set'
   include Utility
-  extend ActiveSupport::Memoizable
+  extend Memoist
 
   belongs_to :creator, :class_name => "Visitor", :foreign_key => "creator_id"
   belongs_to :site, :class_name => "User", :foreign_key => "site_id"
-  
-  has_many :choices, :order => 'score DESC'
+
+  has_many :choices, -> { order('score DESC') }
   has_many :prompts do
     def pick(algorithm = nil)
       logger.info( "inside Question#prompts#pick - never called?")
@@ -41,7 +43,7 @@ class Question < ActiveRecord::Base
   # expire prompts after 30 days of no use
   @@expire_prompt_cache_in_seconds = 60 * 60 * 24 * 30
 
-  named_scope :created_by, lambda { |id|
+  scope :created_by, lambda { |id|
     {:conditions => { :local_identifier => id } }
   }
   REDACTED_TEXT = "Redacted at request of wiki survey owner"
@@ -72,7 +74,7 @@ class Question < ActiveRecord::Base
       end
     end
   end
-    
+
   def item_count
     choices.size
   end
@@ -90,7 +92,7 @@ class Question < ActiveRecord::Base
   def choose_prompt(options = {})
 
           # if there is one or fewer active choices, we won't be able to find a prompt
-    if self.choices.size - self.inactive_choices_count <= 1 
+    if self.choices.size - self.inactive_choices_count <= 1
       raise RuntimeError, "More than one choice needs to be active"
     end
 
@@ -110,7 +112,7 @@ class Question < ActiveRecord::Base
         #Standard choose prompt at random
         return self.simple_random_choose_prompt
     end
-          
+
   end
 
   #TODO: generalize for prompts of rank > 2
@@ -135,7 +137,7 @@ class Question < ActiveRecord::Base
     num.times do
       prompt = nil
       until prompt && prompt.active?
-        target = rand 
+        target = rand
         left_choice_id = right_choice_id = nil
 
         weighted.each do |item, weight|
@@ -175,7 +177,7 @@ class Question < ActiveRecord::Base
       sum += value
     end
 
-    # This will not run once all prompts have been generated, 
+    # This will not run once all prompts have been generated,
     #  but it prevents us from having to pregenerate all possible prompts
     if weights.size < active_choices.size ** 2 - active_choices.size
       active_choices.each do |l|
@@ -204,7 +206,7 @@ class Question < ActiveRecord::Base
     current_user = self.site
 
     if params[:with_prompt]
-     
+
       if params[:with_appearance] && visitor_identifier.present?
         visitor = current_user.visitors.find_or_create_by_identifier(visitor_identifier)
 
@@ -226,7 +228,7 @@ class Question < ActiveRecord::Base
               ["text", "id"].each do |param|
                 choice = (side == "left") ? @future_prompt.left_choice : @future_prompt.right_choice
                 param_val = (param == "text") ? choice.data : choice.id
-  
+
               result.merge!({"future_#{side}_choice_#{param}_#{offset}".to_sym => param_val})
               end
             end
@@ -238,25 +240,25 @@ class Question < ActiveRecord::Base
         result.merge!({:appearance_id => @appearance.lookup})
       else
         # throw some error
-      end 
-    
-      if !@prompt 
+      end
+
+      if !@prompt
         @prompt = choose_prompt(:algorithm => params[:algorithm])
       end
       result.merge!({:picked_prompt_id => @prompt.id})
-    end 
+    end
 
     if params[:with_visitor_stats]
       visitor = current_user.visitors.find_or_create_by_identifier(visitor_identifier)
       result.merge!(:visitor_votes => Vote.find_without_default_scope(:all, :conditions => {:voter_id => visitor, :question_id => self.id}).length)
       result.merge!(:visitor_ideas => visitor.choices.count)
     end
-   
+
     # this might get cpu intensive if used too often. If so, store the calculated value in redis
     #   and expire after X minutes
     if params[:with_average_votes]
       votes_by_visitors = self.votes.count(:group => 'voter_id')
-      
+
       if votes_by_visitors.size > 0
         average = votes_by_visitors.inject(0){|total, (k,v)| total = total + v}.to_f / votes_by_visitors.size.to_f
       else
@@ -278,13 +280,13 @@ class Question < ActiveRecord::Base
         end
         sum = sum.to_f
       end
-      weighted.each do |item, weight| 
-        weighted[item] = weight/sum 
+      weighted.each do |item, weight|
+        weighted[item] = weight/sum
         weighted[item] = 0.0 unless weighted[item].finite?
       end
     elsif weighted.instance_of?(Array)
       sum = weighted.inject(0) {|sum, item| sum += item} if sum.nil?
-      weighted.each_with_index do |item, i| 
+      weighted.each_with_index do |item, i|
         weighted[i] = item/sum
         weighted[i] = 0.0 unless weighted[i].finite?
       end
@@ -304,7 +306,7 @@ class Question < ActiveRecord::Base
    the_prompts = prompts_hash_by_choice_ids
 
    # Initial probabilities chosen at random
-   the_choices.size.times do 
+   the_choices.size.times do
      probs << rand
      prev_probs << rand
    end
@@ -313,7 +315,7 @@ class Question < ActiveRecord::Base
    probs_size = probs.size
 
    difference = 1
-   
+
    # probably want to add a fuzz here to account for floating rounding
    while difference > fuzz do
       s = t % probs_size
@@ -334,7 +336,7 @@ class Question < ActiveRecord::Base
 
         denominator+= (wins_and_losses).to_f / (prev_probs[s] + prev_probs[index])
       end
-      probs[s] = numerator / denominator 
+      probs[s] = numerator / denominator
       # avoid divide by zero NaN
       probs[s] = 0.0 unless probs[s].finite?
       normalize!(probs)
@@ -346,15 +348,15 @@ class Question < ActiveRecord::Base
       end
       puts difference
    end
- 
+
    probs_hash = {}
-   probs.each_with_index do |item, index| 
+   probs.each_with_index do |item, index|
      probs_hash[the_choices[index].id] = item
    end
    probs_hash
  end
 
- 
+
  def all_bt_scores
    btprobs = bradley_terry_probs
    btprobs.each do |key, value|
@@ -372,7 +374,7 @@ class Question < ActiveRecord::Base
    the_prompts
  end
 
-   
+
   def distinct_array_of_choice_ids(params={})
     params = {
       :rank => 2,
@@ -381,18 +383,18 @@ class Question < ActiveRecord::Base
     rank = params[:rank]
     only_active = params[:only_active]
     count = (only_active) ? choices.active.count : choices.count
-    
+
     found_choices = []
     # select only active choices?
     conditions = (only_active) ? ['active = ?', true] : ['1=1']
 
-    rank.times do 
+    rank.times do
       # if we've already found some, make sure we don't find them again
       if found_choices.count > 0
         conditions[0] += ' AND id NOT IN (?)'
         conditions.push found_choices
       end
-    
+
       found_choices.push choices.find(:first,
           :select => 'id',
           :conditions => conditions,
@@ -401,11 +403,11 @@ class Question < ActiveRecord::Base
     end
     return found_choices
   end
- 
+
    def picked_prompt_id
      simple_random_choose_prompt.id
    end
- 
+
    def self.voted_on_by(u)
      select {|z| z.voted_on_by_user?(u)}
    end
@@ -413,14 +415,14 @@ class Question < ActiveRecord::Base
    def voted_on_by_user?(u)
      u.questions_voted_on.include? self
    end
-   
+
    def should_autoactivate_ideas?
      it_should_autoactivate_ideas?
    end
-  
+
   validates_presence_of :site, :on => :create, :message => "can't be blank"
   validates_presence_of :creator, :on => :create, :message => "can't be blank"
-  
+
   def density
       # slow code, only to be run by cron job once at night
 
@@ -432,7 +434,7 @@ class Question < ActiveRecord::Base
 
       nonseed_seed_sum= 0
       nonseed_seed_total= 0
-      
+
       nonseed_nonseed_sum= 0
       nonseed_nonseed_total= 0
 
@@ -479,7 +481,7 @@ class Question < ActiveRecord::Base
       densities[:seed_nonseed] = seed_nonseed_sum.to_f / seed_nonseed_total.to_f
       densities[:nonseed_seed] = nonseed_seed_sum.to_f / nonseed_seed_total.to_f
       densities[:nonseed_nonseed] = nonseed_nonseed_sum.to_f / nonseed_nonseed_total.to_f
-      
+
       puts "Seed_seed sum: #{seed_seed_sum}, seed_seed total num: #{seed_seed_total}"
       puts "Seed_nonseed sum: #{seed_nonseed_sum}, seed_nonseed total num: #{seed_nonseed_total}"
       puts "Nonseed_seed sum: #{nonseed_seed_sum}, nonseed_seed total num: #{nonseed_seed_total}"
@@ -510,7 +512,7 @@ class Question < ActiveRecord::Base
     $redis.del(self.pq_key)
   end
 
-  
+
   # make prompt queue less than @@precent_full
   def mark_prompt_queue_for_refill
     # 2 because redis starts indexes at 0
@@ -593,12 +595,12 @@ class Question < ActiveRecord::Base
       when 'votes'
 
         headers = ['Vote ID', 'Session ID', 'Wikisurvey ID','Winner ID', 'Winner Text', 'Loser ID', 'Loser Text', 'Prompt ID', 'Appearance ID', 'Left Choice ID', 'Right Choice ID', 'Created at', 'Updated at',  'Response Time (s)', 'Missing Response Time Explanation', 'Session Identifier', 'Valid']
-    
+
       when 'ideas'
         headers = ['Wikisurvey ID','Idea ID', 'Idea Text', 'Wins', 'Losses', 'Times involved in Cant Decide', 'Score', 'User Submitted', 'Session ID', 'Created at', 'Last Activity', 'Active', 'Appearances on Left', 'Appearances on Right', 'Session Identifier']
       when 'non_votes'
         headers = ['Record Type', 'Skip ID', 'Appearance ID', 'Session ID', 'Wikisurvey ID','Left Choice ID', 'Left Choice Text', 'Right Choice ID', 'Right Choice Text', 'Prompt ID', 'Reason', 'Created at', 'Updated at', 'Response Time (s)', 'Missing Response Time Explanation', 'Session Identifier', 'Valid']
-      else 
+      else
         raise "Unsupported export type: #{type}"
     end
 
@@ -641,9 +643,9 @@ class Question < ActiveRecord::Base
 
           end
         when 'non_votes'
-         
+
           self.appearances.find_each(:include => [:voter], :conditions => ['answerable_type <> ? OR answerable_type IS NULL', 'Vote']) do |a|
-      
+
           if a.answerable_type == 'Skip'
             # If this appearance belongs to a skip, show information on the skip instead
             s = a.answerable
@@ -651,7 +653,7 @@ class Question < ActiveRecord::Base
             time_viewed = s.time_viewed.nil? ? "NA": s.time_viewed.to_f / 1000.0
             prompt = s.prompt
             y.yield [ "Skip", s.id, a.id, s.skipper_id, s.question_id, s.prompt.left_choice.id, s.prompt.left_choice.data.strip, s.prompt.right_choice.id, s.prompt.right_choice.data.strip, s.prompt_id, s.skip_reason, s.created_at, s.updated_at, time_viewed , s.missing_response_time_exp, s.skipper.identifier,valid].to_csv
-        
+
           else
             # If no skip and no vote, this is an orphaned appearance
             prompt = a.prompt
@@ -752,9 +754,8 @@ class Question < ActiveRecord::Base
         :question_id => self.id,
         :answerable_id => nil
       },
-      :order => 'id ASC',
       :lock => true
-    )
+    ).order('id ASC')
     last_appearance = unanswered_appearances[offset]
     if last_appearance && !last_appearance.prompt.active?
       last_appearance.valid_record = false
