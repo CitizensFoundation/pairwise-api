@@ -4,8 +4,6 @@
 development: &default
   adapter: mysql2
   database: rebirth_development
-  username: root
-  password: bjahdh69
   pool: 5
   timeout: 5000
 

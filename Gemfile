@@ -1,13 +1,14 @@
 source "https://rubygems.org"
 
 ruby '3.1.2'
+
 gem "delayed_job_active_record"
 gem "puma"
 gem "passenger"
 gem "iconv"
 gem 'bootsnap', require: false
 gem "bugsnag", "~> 5.5.0"
-gem "rake", ">= 12.2"
+gem "rake", ">= 13.0.6"
 gem "rdoc", "~> 3.12"
 gem "rails", "7.0.3.1"
 gem "libxml-ruby", "2.9.0", :require => "libxml"
@@ -25,6 +26,7 @@ gem "has_scope",  "0.8.0"
 gem "responders",  "3.0.1"
 #gem "thoughtbot-clearance", "0.8.2",
 #    :require     => "clearance"
+gem "clearance"
 gem "fastercsv", "1.5.1", :platforms => :ruby_18
 gem "delayed_job", "4.1.10"
 gem "redis", "~> 4.7.1"
