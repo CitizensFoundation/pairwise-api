@@ -24,7 +24,7 @@ module Blitz
     end
 
     def active_record_defined?
-      models = Dir.glob(File.join( RAILS_ROOT, 'app', 'models', '*.rb')).
+      models = Dir.glob(File.join( Rails.root, 'app', 'models', '*.rb')).
                    collect { |path| path[/.+\/(.+).rb/,1] }.
                    collect {|model| model.classify }
       models.include?(resource_class)

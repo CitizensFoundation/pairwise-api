@@ -43,8 +43,8 @@ group :cucumber do
 end
 
 group :test do
-  gem "rspec", "~>1.3.1"
-  gem "rspec-rails", "1.3.4"
+  gem "rspec", "3.11.0"
+  gem "rspec-rails", "5.1.2"
   gem "shoulda", "~>2.10.1"
   gem "jtrupiano-timecop", "0.2.1",
     :require     => "timecop"

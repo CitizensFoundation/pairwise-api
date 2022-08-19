@@ -5,7 +5,7 @@
 require 'fileutils'
 
 def copy_files(source_path, destination_path, directory)
-  source, destination = File.join(directory, source_path), File.join(RAILS_ROOT, destination_path)
+  source, destination = File.join(directory, source_path), File.join(Rails.root, destination_path)
   FileUtils.mkdir_p(destination, :verbose => true) unless File.exist?(destination)
   FileUtils.cp_r(source, destination, :verbose => true)
 end
