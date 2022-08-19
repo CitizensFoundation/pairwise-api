@@ -2,12 +2,12 @@
 
 # Your secret key for verifying cookie session data integrity.
 # If you change this key, all old sessions will become invalid!
-# Make sure the secret is at least 30 characters and all random, 
+# Make sure the secret is at least 30 characters and all random,
 # no regular words or you'll be exposed to dictionary attacks.
-ActionController::Base.session = {
-  :key => "_rebirth_session_key",
-  :secret      => "f86c832870682bd056afe09e8b328b1b"
-}
+#ActionController::Base.session = {
+#  :key => "_rebirth_session_key",
+#  :secret      => "f86c832870682bd056afe09e8b328b1b"
+#}
 
 # Use the database for sessions instead of the cookie-based default,
 # which shouldn't be used to store highly confidential information

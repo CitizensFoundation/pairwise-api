@@ -1,7 +1,9 @@
 source "https://rubygems.org"
 
 ruby '3.1.2'
+gem "delayed_job_active_record"
 gem "puma"
+gem "passenger"
 gem "iconv"
 gem 'bootsnap', require: false
 gem "bugsnag", "~> 5.5.0"
@@ -25,10 +27,10 @@ gem "responders",  "3.0.1"
 #    :require     => "clearance"
 gem "fastercsv", "1.5.1", :platforms => :ruby_18
 gem "delayed_job", "4.1.10"
-gem "redis", "~> 3.0.1"
+gem "redis", "~> 4.7.1"
 gem "test-unit", "1.2.3"
 
-gem "sendgrid", "0.1.4"
+gem "sendgrid", "1.2.4"
 gem "json_pure", "2.6.2"
 #gem "rubaidh-google_analytics", "1.1.4", :require => "rubaidh/google_analytics"
 gem 'mysql2', '0.5.4'
