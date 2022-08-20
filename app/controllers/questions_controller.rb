@@ -1,6 +1,6 @@
 class QuestionsController < InheritedResources::Base
   actions :all, :except => [ :show, :edit, :delete ]
-  before_filter :authenticate
+  before_action :authenticate
   respond_to :xml, :json
   respond_to :csv, :only => :export #leave the option for xml export here
   belongs_to :site, :optional => true

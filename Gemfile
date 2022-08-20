@@ -14,6 +14,7 @@ gem "bugsnag", "~> 5.5.0"
 gem "rake", ">= 13.0.6"
 gem "rdoc", "~> 3.12"
 gem "rails", "7.0.3.1"
+gem "sprockets-rails"
 gem "libxml-ruby", "2.9.0", :require => "libxml"
 gem "ambethia-smtp-tls", "1.1.2", :require => "smtp-tls"
 gem "paperclip", "2.3.1"
@@ -34,7 +35,8 @@ gem "fastercsv", "1.5.1", :platforms => :ruby_18
 gem "delayed_job", "4.1.10"
 gem "redis", "~> 4.7.1"
 gem "test-unit", "1.2.3"
-
+gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
+gem "jbuilder"
 gem "sendgrid", "1.2.4"
 gem "json_pure", "2.6.2"
 #gem "rubaidh-google_analytics", "1.1.4", :require => "rubaidh/google_analytics"

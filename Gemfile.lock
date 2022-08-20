@@ -130,6 +130,9 @@ GEM
       has_scope (~> 0.6)
       railties (>= 5.2, < 7.1)
       responders (>= 2, < 4)
+    jbuilder (2.11.5)
+      actionview (>= 5.0.0)
+      activesupport (>= 5.0.0)
     jferris-mocha (0.9.5.0.1241126838)
       rake
     json (1.8.6)
@@ -240,6 +243,13 @@ GEM
     sendgrid (1.2.4)
       json
     shoulda (2.10.3)
+    sprockets (4.1.1)
+      concurrent-ruby (~> 1.0)
+      rack (> 1, < 3)
+    sprockets-rails (3.4.2)
+      actionpack (>= 5.2)
+      activesupport (>= 5.2)
+      sprockets (>= 3.0.0)
     strscan (3.0.4)
     sync (0.5.0)
     term-ansicolor (1.7.1)
@@ -282,6 +292,7 @@ DEPENDENCIES
   has_scope (= 0.8.0)
   iconv
   inherited_resources (= 1.13.1)
+  jbuilder
   jferris-mocha (= 0.9.5.0.1241126838)
   json_pure (= 2.6.2)
   jtrupiano-timecop (= 0.2.1)
@@ -305,7 +316,9 @@ DEPENDENCIES
   rtiss_acts_as_versioned
   sendgrid (= 1.2.4)
   shoulda (~> 2.10.1)
+  sprockets-rails
   test-unit (= 1.2.3)
+  tzinfo-data
   webrat (= 0.5.3)
   xml-simple (= 1.1.9)
 
