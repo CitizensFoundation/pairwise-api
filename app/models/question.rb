@@ -1,10 +1,9 @@
 #require 'memoist'
-
 class Question < ActiveRecord::Base
   #acts_as_versioned
 
   require 'set'
-  include Utility
+
   extend Memoist
 
   belongs_to :creator, :class_name => "Visitor", :foreign_key => "creator_id"
@@ -47,6 +46,17 @@ class Question < ActiveRecord::Base
     {:conditions => { :local_identifier => id } }
   }
   REDACTED_TEXT = "Redacted at request of wiki survey owner"
+
+  def mean(array)
+    array.inject(0) { |sum, x| sum += x } / array.size.to_f
+  end
+
+  def median(array, already_sorted=false)
+    return nil if array.empty?
+    array = array.sort unless already_sorted
+    m_pos = array.size / 2
+    return array.size % 2 == 1 ? array[m_pos] : mean(array[m_pos-1..m_pos])
+  end
 
   def redact!
     self.name = REDACTED_TEXT
