@@ -10,8 +10,8 @@ describe PromptsController do
     @question = Factory.create(:aoi_question)
     sign_in_as(@aoi_clone = @question.site)
     @prompt = @question.prompts.first
-    
-    @visitor = @aoi_clone.visitors.find_or_create_by_identifier("test_visitor_identifier")
+
+    @visitor = @aoi_clone.visitors.find_or_create_by(identifier: "test_visitor_identifier")
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
    end
 
@@ -22,7 +22,7 @@ describe PromptsController do
     end
   end
 
-  describe "POST skip" do  
+  describe "POST skip" do
     it "records a skip without any optional params" do
       controller.current_user.should_receive(:record_skip).and_return(true)
       post(:skip, :question_id => @question.id, :id => @prompt.id,
@@ -46,8 +46,8 @@ describe PromptsController do
              :time_viewed => rand(1000),
              :skip_reason => "some reason"},
             :next_prompt => {
-              :with_appearance => true, 
-              :with_visitor_stats => true, 
+              :with_appearance => true,
+              :with_visitor_stats => true,
               :visitor_identifier => "jim"}
             )
        assigns[:question_optional_information].should_not be_nil
@@ -58,7 +58,7 @@ describe PromptsController do
    end
 
   describe "POST vote" do
-    it "votes on a prompt" do 
+    it "votes on a prompt" do
          post :vote, :question_id => @question.id, :id => @prompt.id,
 	             :vote => {:direction => "left"},
 		     :format => :xml
@@ -68,25 +68,25 @@ describe PromptsController do
 
     it "returns 422 when missing fields are not provided" do
          post :vote, :question_id => @question.id, :id => @prompt.id
-        
+
 	# there is somethingw wrong with response codes, this doesn't work
 	#@response.code.should == "422"
     end
-    
+
     it "votes on a prompt and responds with optional information" do
          post :vote, :question_id => @question.id, :id => @prompt.id,
 		     :vote => {:direction => "left",
-		               :time_viewed => "492", 
+		               :time_viewed => "492",
 			       :visitor_identifier => "jim"},
 		     :next_prompt => {
-		          :with_appearance => true, 
-		          :with_visitor_stats => true, 
+		          :with_appearance => true,
+		          :with_visitor_stats => true,
 			  :visitor_identifier => "jim"},
 	 	     :format => :xml
-	 
+
 	 @response.code.should == "200"
     end
-    
+
     it "should prevent other users from voting on non owned questions" do
     end
 

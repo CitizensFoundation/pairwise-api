@@ -1,6 +1,6 @@
 class QuestionsController < InheritedResources::Base
   actions :all, :except => [ :show, :edit, :delete ]
-  before_action :authenticate
+  before_action :require_login
   respond_to :xml, :json
   respond_to :csv, :only => :export #leave the option for xml export here
   belongs_to :site, :optional => true
@@ -36,10 +36,10 @@ class QuestionsController < InheritedResources::Base
 
   def create
     logger.info "all params are #{params.inspect}"
-    logger.info "vi is #{params['question']['visitor_identifier']} and local are #{params['question']['local_identifier']}."
+    logger.info "vi is #{params['visitor_identifier']} and local are #{params['local_identifier']}."
     if @question =
         current_user.create_question(
-          params['question']['visitor_identifier'],
+          params['visitor_identifier'],
           :name => params['question']['name'],
           :local_identifier => params['question']['local_identifier'],
           :information => params['question']['information'],
@@ -47,10 +47,12 @@ class QuestionsController < InheritedResources::Base
          )
       respond_to do |format|
         format.xml { render :xml => @question.to_xml}
+        format.json { render :xml => @question.to_json}
       end
     else
       respond_to do |format|
         format.xml { render :xml => @question.errors.to_xml}
+        format.json { render :xml => @question.errors.to_json}
       end
     end
   end
@@ -326,7 +328,7 @@ class QuestionsController < InheritedResources::Base
       format.xml {
         render :xml => results.to_xml
       }
-      format.js{
+      format.json{
         render :json => results.to_json
       }
     end

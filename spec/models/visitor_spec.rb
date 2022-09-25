@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe Visitor do
-  
+
   it {should belong_to :site}
   it {should have_many :questions}
   it {should have_many :votes}
@@ -9,15 +9,15 @@ describe Visitor do
   it {should have_many :clicks}
   it {should have_many :appearances}
   it {should have_many :choices}
-  
+
   before(:each) do
     @question = Factory.create(:aoi_question)
     @aoi_clone = @question.site
 
     @prompt = @question.prompts.first
-    @visitor = @aoi_clone.visitors.find_or_create_by_identifier("test_visitor_identifier")
-    
-    @required_vote_params = {:prompt => @prompt, 
+    @visitor = @aoi_clone.visitors.find_or_create_by(identifier: "test_visitor_identifier")
+
+    @required_vote_params = {:prompt => @prompt,
                             :direction => "left"}
     @required_skip_params = {:prompt => @prompt}
   end
@@ -25,16 +25,16 @@ describe Visitor do
   it "should create a new instance given valid attributes" do
      Visitor.create!(Factory.build(:visitor).attributes.symbolize_keys)
   end
-  
+
   it "should be able to determine ownership of a question" do
     @visitor.owns?(Question.new).should be_false
     @visitor.owns?(Factory.build(:aoi_question)).should be_false
-    
+
     @johndoe = Factory.create(:visitor)
     ownedquestion = Factory.create(:question, :site => @aoi_clone, :creator=> @johndoe)
     @johndoe.owns?(ownedquestion).should be_true
   end
-  
+
   it "should be able to vote for a prompt" do
     @prompt.votes.size.should == 0
 
@@ -48,7 +48,7 @@ describe Visitor do
     @prompt.reload
     @prompt.votes.size.should  == 1
   end
-  
+
   it "should be able to vote for a choice" do
     @required_vote_params[:direction] = "right"
     v = @visitor.vote_for!(@required_vote_params)
@@ -84,13 +84,13 @@ describe Visitor do
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
     @optional_vote_params = {:appearance_lookup => @appearance.lookup,
 		            :time_viewed => 213}
-    
+
     allparams = @required_vote_params.merge(@optional_vote_params)
     v = @visitor.vote_for!(allparams)
 
     v.appearance.should == @appearance
     v.time_viewed.should == 213
-    
+
   end
 
   it "should not create a new appearance if the answers's visitor is different from the appearance's" do
@@ -179,7 +179,7 @@ describe Visitor do
       @appearance.answerable_type.should be_nil
     end
   end
-  
+
   it "should be able to skip a prompt" do
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
     @optional_skip_params = {
@@ -191,7 +191,7 @@ describe Visitor do
     s = @visitor.skip!(allparams)
     s.appearance.should == @appearance
   end
-  
+
   it "should not create a skip when the appearance look up is wrong" do
     skip_count = Skip.count
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
@@ -205,10 +205,10 @@ describe Visitor do
     s.should be_nil
     Skip.count.should == skip_count
   end
-  
+
   it "should mark a skip as invalid if submitted with an already answered appearance" do
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
-    @optional_skip_params = {:appearance_lookup => @appearance.lookup} 
+    @optional_skip_params = {:appearance_lookup => @appearance.lookup}
     allparams = @required_skip_params.merge(@optional_skip_params)
 
     valid_skip = @visitor.skip!(allparams)
@@ -230,7 +230,7 @@ describe Visitor do
 
   it "should mark a vote as invalid if submitted with an already answered appearance" do
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
-    @optional_vote_params = {:appearance_lookup => @appearance.lookup} 
+    @optional_vote_params = {:appearance_lookup => @appearance.lookup}
     allparams = @required_vote_params.merge(@optional_vote_params)
 
     valid_vote = @visitor.vote_for!(allparams)
@@ -251,22 +251,22 @@ describe Visitor do
   end
 
   it "should accurately update score counts after vote" do
-   
+
     @lc = @prompt.left_choice
     @rc = @prompt.right_choice
-   
+
     prev_winner_score = @lc.score
     prev_loser_score = @rc.score
-    
+
     vote = @visitor.vote_for! @required_vote_params
-    
+
     @lc.reload
     @rc.reload
 
     @lc.score.should > prev_winner_score
     @rc.score.should < prev_loser_score
   end
-  
+
   it "should accurately update win and loss totals after vote" do
     @lc = @prompt.left_choice
     @rc = @prompt.right_choice
@@ -274,9 +274,9 @@ describe Visitor do
     prev_winner_losses = @lc.losses
     prev_loser_losses = @rc.losses
     prev_loser_wins = @rc.wins
-    
+
     vote = @visitor.vote_for! @required_vote_params
-    
+
     @lc.reload
     @rc.reload
 
@@ -285,9 +285,9 @@ describe Visitor do
     @rc.losses.should ==  prev_loser_losses + 1
     @rc.wins.should ==  prev_winner_wins
   end
-  
+
   it "should invalidate vote after skips when :skip_fraud_protection option passed" do
-    
+
     # If a visitor skips a prompt, the vote after should be conisdered invalid
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
     @visitor.skip!(@required_skip_params.merge({ :appearance_lookup => @appearance.lookup}))
@@ -297,15 +297,15 @@ describe Visitor do
 
     vote = @visitor.vote_for! @required_vote_params.merge(@optional_vote_params)
     vote.valid_record.should be_false
-    
+
     @appearance_3 = @aoi_clone.record_appearance(@visitor, @prompt)
     @optional_vote_params = {:appearance_lookup => @appearance_3.lookup, :skip_fraud_protection => true }
-    
+
     vote_2 = @visitor.vote_for! @required_vote_params.merge(@optional_vote_params)
 
     vote_2.valid_record.should be_true
 
   end
 
-    
+
 end

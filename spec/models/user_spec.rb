@@ -10,14 +10,14 @@ describe User do
 
   end
 
-  
+
   it "should be able to create a question as a site" do
     q = @aoi_clone.create_question("foobarbaz", {:name => 'foo'})
     q.should_not be_nil
     q.site.should_not be_nil
     q.site.should eql @aoi_clone
   end
-  
+
   it "should be able to create a choice for a question " do
     q = @aoi_clone.create_question("foobarbaz", {:name => 'foo'}) #replace with a factory
     c = @aoi_clone.create_choice("foobarbaz", q, {:data => 'foobarbaz'})
@@ -25,29 +25,29 @@ describe User do
     q.choices.should_not be_empty
     q.choices.size.should eql 1
   end
-  
+
   it "should be able to record a visitor's vote" do
-    @visitor = @aoi_clone.visitors.find_or_create_by_identifier("test_visitor_identifier")
+    @visitor = @aoi_clone.visitors.find_or_create_by(identifier: "test_visitor_identifier")
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
 
-    optional_vote_params = {:visitor_identifier => @visitor.identifier, 
+    optional_vote_params = {:visitor_identifier => @visitor.identifier,
                             :appearance_lookup => @appearance.lookup,
 		            :time_viewed => 213}
 
-    required_vote_params = {:prompt => @prompt, 
+    required_vote_params = {:prompt => @prompt,
                             :direction => "left"}
     params = optional_vote_params.merge(required_vote_params)
-    
+
     v = @aoi_clone.record_vote(params)
 
     v.should_not be_nil
     prompt_votes = @prompt.votes(true)
     prompt_votes.should_not be_empty
     prompt_votes.size.should == 1
-    
+
     choices = @prompt.choices
     choices.should_not be_empty
-    
+
     choice_votes = choices[0].votes(true)
     choice_votes.should_not be_empty
     choice_votes.size.should == 1
@@ -59,29 +59,29 @@ describe User do
 
     optional_vote_params = {:time_viewed => 213}
 
-    required_vote_params = {:prompt => @prompt, 
+    required_vote_params = {:prompt => @prompt,
                             :direction => "left"}
     params = optional_vote_params.merge(required_vote_params)
-    
+
     v = @aoi_clone.record_vote(params)
 
     v.should_not be_nil
     prompt_votes = @prompt.votes(true)
     prompt_votes.should_not be_empty
     prompt_votes.size.should == 1
-    
+
     choices = @prompt.choices
     choices.should_not be_empty
-    
+
     choice_votes = choices[0].votes(true)
     choice_votes.should_not be_empty
     choice_votes.size.should == 1
 
     v.voter.should == @aoi_clone.default_visitor
   end
-  
+
   it "should be able to record a visitor's skip" do
-    @visitor = @aoi_clone.visitors.find_or_create_by_identifier("test_visitor_identifier")
+    @visitor = @aoi_clone.visitors.find_or_create_by(identifier: "test_visitor_identifier")
     @appearance = @aoi_clone.record_appearance(@visitor, @prompt)
     optional_skip_params = {
       :visitor_identifier => @visitor.identifier,

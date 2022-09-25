@@ -44,5 +44,4 @@ PairwiseApi::Application.routes.draw do
     end
   end
 
-  post "/" => "clearance/sessions#new"
 end

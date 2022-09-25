@@ -1,15 +1,16 @@
-<h2>Reset your password</h2>
+<div id="clearance" class="password-reset">
+  <h2><%= t(".title") %></h2>
 
-<p>
-  We will email you a link to reset your password.
-</p>
+  <p><%= t(".description") %></p>
 
-<% semantic_form_for :password, :url => passwords_path do |form| -%>
-  <% form.inputs do -%>
-    <%= form.input :email %>
-  <% end -%>
-  <% form.actions do -%>
-    <%= form.submit "Reset password" %>
-  <% end -%>
-<% end -%>
+  <%= form_for :password, url: passwords_path do |form| %>
+    <div class="text-field">
+      <%= form.label :email %>
+      <%= form.email_field :email %>
+    </div>
 
+    <div class="submit-field">
+      <%= form.submit %>
+    </div>
+  <% end %>
+</div>
