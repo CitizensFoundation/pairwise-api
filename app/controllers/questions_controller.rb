@@ -11,8 +11,9 @@ class QuestionsController < InheritedResources::Base
     begin
         @question_optional_information = @question.get_optional_information(params)
     rescue RuntimeError => e
-      log_error(e)
+      logger.error(e)
       respond_to do |format|
+        format.json { render :xml => @question.to_json, :status => :conflict and return}
         format.xml { render :xml => @question.to_xml, :status => :conflict and return}
       end
     end
@@ -28,7 +29,7 @@ class QuestionsController < InheritedResources::Base
       format.xml {
         render :xml => @question.to_xml(response_options)
       }
-      format.js{
+      format.json {
         render :json => @question.to_json(response_options)
       }
     end
@@ -40,10 +41,10 @@ class QuestionsController < InheritedResources::Base
     if @question =
         current_user.create_question(
           params['visitor_identifier'],
-          :name => params['question']['name'],
-          :local_identifier => params['question']['local_identifier'],
-          :information => params['question']['information'],
-          :ideas => (params['question']['ideas'].lines.to_a.delete_if {|i| i.blank?} rescue nil)
+          :name => params['name'],
+          :local_identifier => params['local_identifier'],
+          :information => params['information'],
+          :ideas => (params['ideas'].lines.to_a.delete_if {|i| i.blank?} rescue nil)
          )
       respond_to do |format|
         format.xml { render :xml => @question.to_xml}

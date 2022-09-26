@@ -4,31 +4,31 @@ class ChoicesController < InheritedResources::Base
   belongs_to :question
   has_scope :active, :type => :boolean, :only => :index
 
-  before_action :authenticate
+  before_action :require_login
 
   def index
     if params[:limit]
-      @question = current_user.questions.find(params[:question_id])
+      @question = current_user.questions.find(params[:question_id]).first
 
-      find_options = {:conditions => {:question_id => @question.id},
-		      :limit => params[:limit].to_i,
-		      :order => 'score DESC'
+      find_options = {:conditions => {:question_id => @question.id}
 		      }
 
       find_options[:conditions].merge!(:active => true) unless params[:include_inactive]
       find_options.merge!(:offset => params[:offset]) if params[:offset]
 
-      @choices = Choice.find(:all, find_options)
+      where_options = find_options[:conditions].map{ |el| "#{el.first}=#{el.last}" }.join(" AND ")
 
+      @choices = Choice.where(where_options).limit(params[:limit].to_i).order('score DESC').offset(params[:offset].to_i)
     else
-      @question = current_user.questions.find(params[:question_id], :include => :choices) #eagerloads ALL choices
+      @question = current_user.questions.where(id: params[:question_id]).includes(:choices).first #eagerloads ALL choices
       unless params[:include_inactive]
-        @choices = @question.choices(true).active.find(:all)
+        @choices = @question.choices.active.all
       else
-        @choices = @question.choices.find(:all)
+        @choices = @question.choices.all
       end
     end
     index! do |format|
+      format.json { render :xml => @choices.to_json(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses], :methods => :user_created)}
       format.xml { render :xml => @choices.to_xml(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses], :methods => :user_created)}
     end
 

@@ -9,7 +9,7 @@ class Question < ActiveRecord::Base
   belongs_to :creator, :class_name => "Visitor", :foreign_key => "creator_id"
   belongs_to :site, :class_name => "User", :foreign_key => "site_id"
 
-  has_many :choices, -> { order('score DESC') }
+  has_many :choices, :class_name => "Choice" #TODO: Get working-> { order('score DESC') },
   has_many :prompts do
     def pick(algorithm = nil)
       logger.info( "inside Question#prompts#pick - never called?")
@@ -759,13 +759,7 @@ class Question < ActiveRecord::Base
   # inside a transaction that will add a row matching these parameters if one
   # doesn't already exist.
   def get_first_unanswered_appearance(visitor, offset=0)
-    unanswered_appearances = visitor.appearances.find(:all,
-      :conditions => {
-        :question_id => self.id,
-        :answerable_id => nil
-      },
-      :lock => true
-    ).order('id ASC')
+    unanswered_appearances = visitor.appearances.where("question_id = ? AND answerable_type IS NULL", self.id).order("appearances.id ASC").lock(true)
     last_appearance = unanswered_appearances[offset]
     if last_appearance && !last_appearance.prompt.active?
       last_appearance.valid_record = false
