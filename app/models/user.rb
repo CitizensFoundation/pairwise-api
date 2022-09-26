@@ -38,6 +38,7 @@ class User < ActiveRecord::Base
     else
        visitor = visitors.find_or_create_by(identifier: visitor_identifier)
     end
+
     visitor.vote_for!(options)
   end
 

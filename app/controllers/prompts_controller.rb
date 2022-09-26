@@ -18,7 +18,8 @@ class PromptsController < InheritedResources::Base
     vote_options = params[:vote] || {}
     vote_options.merge!(:prompt => @prompt, :question => @question)
 
-    successful = object= current_user.record_vote(vote_options)
+    successful = object = current_user.record_vote(vote_options)
+
     optional_information = []
     if params[:next_prompt]
        begin
@@ -38,11 +39,9 @@ class PromptsController < InheritedResources::Base
 
     respond_to do |format|
       if !successful.nil?
-        format.xml { render :xml => object.to_xml(:procs => optional_information , :methods => [:left_choice_text, :right_choice_text]), :status => :ok }
         format.json { render :json => object.to_json(:procs => optional_information, :methods => [:left_choice_text, :right_choice_text]), :status => :ok }
       else
-        format.xml { render :xml => @prompt.to_xml, :status => :unprocessable_entity }
-        format.json { render :json => @prompt.to_xml, :status => :unprocessable_entity }
+        format.json { render :json => @prompt.to_json, :status => :unprocessable_entity }
       end
     end
   end

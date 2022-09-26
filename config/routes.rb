@@ -30,8 +30,8 @@ PairwiseApi::Application.routes.draw do
     end
     resources :prompts, :only => :show do
       member do
-        post :skip
-        post :vote
+        put :skip
+        put :vote
       end
     end
 

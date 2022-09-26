@@ -23,9 +23,7 @@ class Visitor < ActiveRecord::Base
     ordinality = (options.delete(:direction) == "left") ? 0 : 1
 
     if options.delete(:skip_fraud_protection)
-       last_answered_appearance = self.appearances.find(:first,
-			:conditions => ["appearances. question_id = ? AND appearances.answerable_id IS NOT NULL", prompt.question_id],
-			:order => 'id DESC')
+       last_answered_appearance = self.appearances.where(["appearances. question_id = ? AND appearances.answerable_id IS NOT NULL", prompt.question_id]).order('id DESC').first
        if last_answered_appearance && last_answered_appearance.answerable_type == "Skip"
               options.merge!(:valid_record => false)
               options.merge!(:validity_information => "Fraud protection: last visitor action was a skip")
@@ -41,12 +39,14 @@ class Visitor < ActiveRecord::Base
 
     associate_appearance = false
     if options[:appearance_lookup]
-      @appearance = prompt.appearances.find_by_lookup(options.delete(:appearance_lookup))
+
+      puts "XXXXXXXXXXXXXXXXXXXXXXXXXx #{options.inspect}"
+      @appearance = prompt.appearances.find_by(lookup: options.delete(:appearance_lookup))
       return nil unless @appearance # don't allow people to fake appearance lookups
 
       # if the found appearance doesn't match this voter_id or the voter_id of
       # the old_visitor_identifier then don't proceed any further
-      if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by_identifier(old_visitor_identifier).try(:id)
+      if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
         return nil
       end
       associate_appearance = true
@@ -76,12 +76,11 @@ class Visitor < ActiveRecord::Base
       return nil unless @appearance
       # if the found appearance doesn't match this voter_id or the voter_id of
       # the old_visitor_identifier then don't proceed any further
-      if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by_identifier(old_visitor_identifier).try(:id)
+      if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
         return nil
       end
       associate_appearance = true
     end
-
     if options.delete(:force_invalid_vote)
       options.merge!(:valid_record => false)
       options.merge!(:validity_information => "API call forced invalid vote")
