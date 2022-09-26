@@ -22,8 +22,9 @@ class Prompt < ActiveRecord::Base
   scope :active, -> { includes(:left_choice,:right_choice).where('left_choice.active = ? AND right_choice.active = ?', true, true) }
   scope :ids_only, ->  { :select => 'id' }
 
-  attr_protected :votes_count, :left_choice_id, :right_choice_id
+  attr_protected :votes_count
   attr_readonly :question_id
+  attr_accessible :left_choice_id, :right_choice_id
 
   # Algorithm used to select this prompt.
   #

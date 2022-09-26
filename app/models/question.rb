@@ -130,7 +130,7 @@ class Question < ActiveRecord::Base
     logger.info "inside Question#simple_random_choose_prompt"
     raise NotImplementedError.new("Sorry, we currently only support pairwise prompts.  Rank of the prompt must be 2.") unless rank == 2
     choice_id_array = distinct_array_of_choice_ids(:rank => rank, :only_active => true)
-    prompt = prompts.find_or_initialize_by_left_choice_id_and_right_choice_id(choice_id_array[0], choice_id_array[1])
+    prompt = prompts.find_or_initialize_by(left_choice_id: choice_id_array[0], right_choice_id: choice_id_array[1])
     prompt.save
     prompt.algorithm = {:name => 'simple-random'}
     prompt
@@ -157,7 +157,7 @@ class Question < ActiveRecord::Base
           end
           target -= weight
         end
-        prompt = prompts.find_or_initialize_by_left_choice_id_and_right_choice_id(left_choice_id, right_choice_id)
+        prompt = prompts.find_or_initialize_by(left_choice_id: left_choice_id, right_choice_id: right_choice_id)
         prompt.save
       end
       prompt.algorithm = {:name => 'catchup', :tau => tau, :alpha => alpha}
@@ -260,7 +260,7 @@ class Question < ActiveRecord::Base
 
     if params[:with_visitor_stats]
       visitor = current_user.visitors.find_or_create_by(identifier: visitor_identifier)
-      result.merge!(:visitor_votes => Vote.find_without_default_scope(:all, :conditions => {:voter_id => visitor, :question_id => self.id}).length)
+      result.merge!(:visitor_votes => Vote.unscoped().where(["voter_id = ? AND question_id = ?", visitor, self.id]).length)
       result.merge!(:visitor_ideas => visitor.choices.count)
     end
 
@@ -405,11 +405,7 @@ class Question < ActiveRecord::Base
         conditions.push found_choices
       end
 
-      found_choices.push choices.find(:first,
-          :select => 'id',
-          :conditions => conditions,
-          # rand generates value >= 0 and < param
-          :offset => rand(count - found_choices.count)).id
+      found_choices.push choices.where(conditions).select(:id).offset(rand(count - found_choices.count)).first.id
     end
     return found_choices
   end
@@ -521,7 +517,6 @@ class Question < ActiveRecord::Base
   def clear_prompt_queue
     $redis.del(self.pq_key)
   end
-
 
   # make prompt queue less than @@precent_full
   def mark_prompt_queue_for_refill

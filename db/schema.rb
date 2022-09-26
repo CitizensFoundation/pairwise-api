@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_19_191454) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
   create_table "appearances", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "voter_id"
     t.integer "site_id"
@@ -101,6 +101,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_19_191454) do
     t.string "locked_by"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "queue"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 

@@ -27,7 +27,7 @@ class Vote < ActiveRecord::Base
   after_save :update_cached_values_based_on_flags
 
   def self.find_without_default_scope(*args)
-    with_exclusive_scope() do
+    unscoped() do
       find(*args)
     end
   end
