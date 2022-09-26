@@ -2,11 +2,11 @@ class PromptsController < InheritedResources::Base
   respond_to :xml, :json
   actions :show
   belongs_to :question
-  
+
   has_scope :voted_on_by
-  before_filter :authenticate
-  
-    # To record a vote 
+  before_action :require_login
+
+    # To record a vote
     #  required parameters - prompt id, ordinality, visitor_identifer?
     #  optional params - visitor_identifier, appearance_lookup
     # After recording vote, next prompt display parameters:
@@ -14,7 +14,7 @@ class PromptsController < InheritedResources::Base
   def vote
     @question = current_user.questions.find(params[:question_id])
     @prompt = @question.prompts.find(params[:id])
-    
+
     vote_options = params[:vote] || {}
     vote_options.merge!(:prompt => @prompt, :question => @question)
 
@@ -27,7 +27,7 @@ class PromptsController < InheritedResources::Base
        rescue RuntimeError
 
            respond_to do |format|
-              format.xml { render :xml => @prompt.to_xml, :status => :conflict and return} 
+              format.xml { render :xml => @prompt.to_xml, :status => :conflict and return}
            end
        end
        object = @question.prompts.find(@question_optional_information.delete(:picked_prompt_id))
@@ -46,7 +46,7 @@ class PromptsController < InheritedResources::Base
       end
     end
   end
-  
+
   def skip
     logger.info "#{current_user.inspect} is skipping."
     @question = current_user.questions.find(params[:question_id])
@@ -64,7 +64,7 @@ class PromptsController < InheritedResources::Base
        rescue RuntimeError
 
            respond_to do |format|
-              format.xml { render :xml => @prompt.to_xml, :status => :conflict and return} 
+              format.xml { render :xml => @prompt.to_xml, :status => :conflict and return}
            end
        end
 
@@ -86,19 +86,19 @@ class PromptsController < InheritedResources::Base
 
   def show
     @question = current_user.questions.find(params[:question_id])
-    @prompt = @question.prompts.find(params[:id], :include => [:left_choice ,:right_choice ])
+    @prompt = @question.prompts.where(id: params[:id]).includes([:left_choice ,:right_choice]).first
     show! do |format|
       format.xml { render :xml => @prompt.to_xml(:methods => [:left_choice_text, :right_choice_text])}
       format.json { render :json => @prompt.to_json(:methods => [:left_choice_text, :right_choice_text])}
     end
   end
 
-  
+
   protected
     def begin_of_association_chain
       current_user.questions.find(params[:question_id])
     end
-    
+
     def collection
       if params[:choice_id].blank?
         @prompts
