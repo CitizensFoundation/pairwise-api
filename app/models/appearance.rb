@@ -2,7 +2,7 @@ class Appearance < ActiveRecord::Base
   belongs_to :voter, :class_name => "Visitor", :foreign_key => 'voter_id'
   belongs_to :prompt
   belongs_to :question
-  belongs_to :answerable, :polymorphic => true
+  belongs_to :answerable, :polymorphic => true, :required=>false
 
   default_scope -> { where("valid_record = ?", true)}
 

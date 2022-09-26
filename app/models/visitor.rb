@@ -40,9 +40,10 @@ class Visitor < ActiveRecord::Base
     associate_appearance = false
     if options[:appearance_lookup]
 
-      puts "XXXXXXXXXXXXXXXXXXXXXXXXXx #{options.inspect}"
+      puts "PPPPPPPPPPPPPP DEBUG 1 #{options[:appearance_lookup]}"
       @appearance = prompt.appearances.find_by(lookup: options.delete(:appearance_lookup))
       return nil unless @appearance # don't allow people to fake appearance lookups
+      puts "PPPPPPPPPPPPPP DEBUG 2 #{@appearance}"
 
       # if the found appearance doesn't match this voter_id or the voter_id of
       # the old_visitor_identifier then don't proceed any further
@@ -52,13 +53,22 @@ class Visitor < ActiveRecord::Base
       associate_appearance = true
     end
 
+    puts "PPPPPPPPPPPPPP DEBUG 3 #{@appearance}"
+
     choice = prompt.choices[ordinality] #we need to guarantee that the choices are in the right order (by position)
     other_choices = prompt.choices - [choice]
     loser_choice = other_choices.first
 
+    puts "PPPPPPPPPPPPPP DEBUG 4 #{choice.inspect}"
+
     options.merge!(:question_id => prompt.question_id, :prompt => prompt, :voter => self, :choice => choice, :loser_choice => loser_choice)
 
-    v = votes.create!(options)
+    puts "PPPPPPPPPPPPPP DEBUG 5 #{options.inspect}"
+
+    v = votes.create!(options.to_unsafe_h)
+
+    puts "PPPPPPPPPPPPPP DEBUG 6 #{v.inspect}"
+
     safely_associate_appearance(v, @appearance, old_visitor_identifier) if associate_appearance
     v
   end
@@ -116,7 +126,7 @@ class Visitor < ActiveRecord::Base
     # Manually update Appearance with id to ensure no double votes for a
     # single appearance.  Only update the answerable_id if it is NULL.
     # If we can't find any rows to update, then this object should be invalid.
-    rows_updated = Appearance.update_all("answerable_id = #{object.id}, answerable_type = '#{object.class.to_s}', updated_at = '#{Time.now.utc.to_s(:db)}'", "id = #{appearance.id} AND answerable_id IS NULL")
+    rows_updated = Appearance.where(id: appearance.id, answerable_id: nil).update_all(answerable_id: object.id, answerable_type: object.class.to_s, updated_at: Time.now.utc.to_s(:db))
     if rows_updated != 1
       object.update_attributes!(:valid_record => false, :validity_information => "Appearance #{appearance.id} already answered")
     end

@@ -18,7 +18,10 @@ class PromptsController < InheritedResources::Base
     vote_options = params[:vote] || {}
     vote_options.merge!(:prompt => @prompt, :question => @question)
 
+    puts "Voting on prompt #{params[:id]} with options #{vote_options.inspect}"
+
     successful = object = current_user.record_vote(vote_options)
+    puts "Successful: #{successful}"
 
     optional_information = []
     if params[:next_prompt]

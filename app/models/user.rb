@@ -33,18 +33,25 @@ class User < ActiveRecord::Base
 
   def record_vote(options)
     visitor_identifier = options.delete(:visitor_identifier)
+    puts "WWWWWWWWWWWWWWWWWWW the visitor_identifier is #{visitor_identifier.inspect}"
+
     if visitor_identifier.nil?
+       puts "DEFAULT"
        visitor = default_visitor
     else
        visitor = visitors.find_or_create_by(identifier: visitor_identifier)
     end
+
+    puts "XXXXXXXXXXXXXXXXXXXXXXXXXXXX the visitor is #{visitor.inspect}"
 
     visitor.vote_for!(options)
   end
 
   def record_appearance(visitor, prompt)
     algorithm_name = prompt.algorithm[:name] || prompt.algorithm['name'] unless prompt.algorithm.nil?
-    Appearance.create(:voter => visitor, :prompt => prompt, :question_id => prompt.question_id, :site_id => self.id, :lookup =>  Digest::MD5.hexdigest(rand(10000000000).to_s + visitor.id.to_s + prompt.id.to_s), :algorithm_metadata => prompt.algorithm.to_json, :algorithm_name => algorithm_name )
+    @app = Appearance.create(:voter => visitor, :prompt => prompt, :question_id => prompt.question_id, :site_id => self.id, :lookup =>  Digest::MD5.hexdigest(rand(10000000000).to_s + visitor.id.to_s + prompt.id.to_s), :algorithm_metadata => prompt.algorithm.to_json, :algorithm_name => algorithm_name )
+    puts "#{@app.errors.inspect}"
+    @app
   end
 
 

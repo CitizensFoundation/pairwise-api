@@ -714,6 +714,7 @@ class Question < ActiveRecord::Base
   #
   # On success, this method always an appearance.
   def create_or_find_next_appearance(visitor, params, offset=0)
+    puts "MMMMMMMMMMMMMMMMMMMMMMMMMMMMM 1"
     prompt = appearance = nil
     # We'll retry this block at most 2 times due to deadlocks.
     max_retries = 2
@@ -745,6 +746,8 @@ class Question < ActiveRecord::Base
         raise
       end
     end
+    puts "MMMMMMMMMMMMMMMMMMMMMMMMMMMMM 1 #{appearance.inspect}"
+
     return appearance
   end
 
