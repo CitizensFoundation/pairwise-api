@@ -32,17 +32,22 @@ class PromptsController < InheritedResources::Base
 
            respond_to do |format|
               format.xml { render :xml => @prompt.to_xml, :status => :conflict and return}
+              format.json { render :json => @prompt.to_json, :status => :conflict and return }
            end
        end
        object = @question.prompts.find(@question_optional_information.delete(:picked_prompt_id))
-       @question_optional_information.each do |key, value|
-          optional_information << Proc.new { |options| options[:builder].tag!(key, value)}
-       end
     end
+
+    puts "OOOOOOOOOOOOOOOOOOOOOOO: #{object.inspect}"
+
+    @question_optional_information[:left_choice_text] = @prompt.left_choice.data
+    @question_optional_information[:right_choice_text] = @prompt.right_choice.data
+
+    final_json = JSON.dump(JSON.parse(object.to_json).merge(JSON.parse(@question_optional_information.to_json)))
 
     respond_to do |format|
       if !successful.nil?
-        format.json { render :json => object.to_json(:procs => optional_information, :methods => [:left_choice_text, :right_choice_text]), :status => :ok }
+        format.json { render :json =>final_json, :status => :ok }
       else
         format.json { render :json => @prompt.to_json, :status => :unprocessable_entity }
       end
