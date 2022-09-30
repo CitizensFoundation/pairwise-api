@@ -2,7 +2,7 @@ class ExportsController < InheritedResources::Base
   before_filter :authenticate
 
   def show
-    e = Export.find_by_name(params[:id])
+    e = Export.find_by(name: params[:id])
     if e.nil? || e.data.nil? || !current_user.question_ids.include?(e.question_id)
       render :text => "Not found.", :status => 404, :content_type => 'text/html' and return
     end

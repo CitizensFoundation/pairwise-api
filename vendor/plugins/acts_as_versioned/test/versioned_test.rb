@@ -59,7 +59,7 @@ class VersionedTest < Test::Unit::TestCase
     assert_equal 24, p.version
     assert_equal 'Welcome to the weblog', p.title
 
-    assert p.revert_to!(p.versions.find_by_version(23)), "Couldn't revert to 23"
+    assert p.revert_to!(p.versions.find_by(version: 23)), "Couldn't revert to 23"
     assert_equal 23, p.version
     assert_equal 'Welcome to the weblg', p.title
   end
@@ -242,7 +242,7 @@ class VersionedTest < Test::Unit::TestCase
   end
 
   def test_find_version
-    assert_equal page_versions(:welcome_1), pages(:welcome).versions.find_by_version(23)
+    assert_equal page_versions(:welcome_1), pages(:welcome).versions.find_by(version: 23)
   end
 
   def test_with_sequence
@@ -346,19 +346,19 @@ class VersionedTest < Test::Unit::TestCase
   def test_without_locking_temporarily_disables_optimistic_locking
     enabled1 = false
     block_called = false
-    
+
     ActiveRecord::Base.lock_optimistically = true
     LockedPage.without_locking do
       enabled1 = ActiveRecord::Base.lock_optimistically
       block_called = true
     end
     enabled2 = ActiveRecord::Base.lock_optimistically
-    
+
     assert block_called
     assert !enabled1
     assert enabled2
   end
-  
+
   def test_without_locking_reverts_optimistic_locking_settings_if_block_raises_exception
     assert_raises(RuntimeError) do
       LockedPage.without_locking do

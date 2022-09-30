@@ -82,7 +82,7 @@ class Visitor < ActiveRecord::Base
 
     associate_appearance = false
     if options[:appearance_lookup]
-      @appearance = prompt.appearances.find_by_lookup(options.delete(:appearance_lookup))
+      @appearance = prompt.appearances.find_by(lookup: options.delete(:appearance_lookup))
       return nil unless @appearance
       # if the found appearance doesn't match this voter_id or the voter_id of
       # the old_visitor_identifier then don't proceed any further

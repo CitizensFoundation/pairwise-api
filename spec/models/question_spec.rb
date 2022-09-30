@@ -593,7 +593,7 @@ describe Question do
       end
       @aoi_question.export('votes', :key => key)
 
-      export = Export.find_by_name(key)
+      export = Export.find_by(name: key)
       zstream = Zlib::Inflate.new
       buf = zstream.inflate(export.data)
       zstream.finish
