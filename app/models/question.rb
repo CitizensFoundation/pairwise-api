@@ -91,7 +91,7 @@ class Question < ActiveRecord::Base
 
   # returns array of hashes where each has has voter_id and total keys
   def votes_per_session
-    self.votes.find(:all, :select => 'voter_id, count(*) as total', :group => :voter_id).map { |v| {:voter_id => v.voter_id, :total => v.total.to_i} }
+    self.votes.select('voter_id, count(*) as total').group(:voter_id).map { |v| {:voter_id => v.voter_id, :total => v.total.to_i} }
   end
 
   def median_votes_per_session
@@ -649,7 +649,7 @@ class Question < ActiveRecord::Base
           end
         when 'non_votes'
 
-          self.appearances.find_each(:include => [:voter], :conditions => ['answerable_type <> ? OR answerable_type IS NULL', 'Vote']) do |a|
+          self.appearances.includes(:voter).where('answerable_type <> ? OR answerable_type IS NULL', 'Vote').find_each do |a|
 
           if a.answerable_type == 'Skip'
             # If this appearance belongs to a skip, show information on the skip instead
@@ -797,10 +797,7 @@ class Question < ActiveRecord::Base
 
   # total number of sessions that have uploaded an idea
   def sessions_with_uploaded_ideas
-    choices.find(:all,
-      :conditions => ["creator_id <> ?", creator_id],
-      :group => :creator_id
-    ).count
+    choices.where("creator_id <> ?", creator_id).group(:creator_id).count
   end
 
   # total sessions with at least one vote, skip, or uploaded idea

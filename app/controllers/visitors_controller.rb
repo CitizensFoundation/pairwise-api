@@ -13,8 +13,8 @@ class VisitorsController < InheritedResources::Base
     if params[:skips_count]
       counts[:skips_count] = Skip.count(:conditions => cond, :group => "skipper_id")
     end
-    if params[:ideas_count]    
-      idea_cond = "choices.creator_id != questions.creator_id" + 
+    if params[:ideas_count]
+      idea_cond = "choices.creator_id != questions.creator_id" +
         (cond ? " AND #{cond}" : "")
       counts[:ideas_count] = Choice.count(:joins => :question,
                                           :conditions => idea_cond,
@@ -33,15 +33,15 @@ class VisitorsController < InheritedResources::Base
     # instead, take the union of visitor ids with counted objects
     if counts.empty?
       @visitors = current_user.visitors.scoped({})
-    else      
+    else
       ids = counts.inject([]){ |ids,(k,v)| ids | v.keys }
-      @visitors = current_user.visitors.scoped(:conditions => { :id => ids })
+      @visitors = current_user.visitors.where(:id => ids)
     end
 
     counts.each_pair do |attr,values|
       @visitors.each{ |v| v[attr] = values[v.id] || 0 }
     end
-      
+
     index!
   end
 
@@ -82,11 +82,9 @@ class VisitorsController < InheritedResources::Base
 
 	def votes
 	  @visitor = Visitor.find_by_identifier!(params[:id])
-	  votes = Vote.find(:all, :include => [:choice, :loser_choice, :prompt], 
-				  :conditions => {:question_id => params[:question_id],
-					          :voter_id => @visitor.id
-	  				         },
-				  :order => 'created_at ASC')
+	  votes = Vote.includes(:choice, :loser_choice, :prompt).where({:question_id => params[:question_id],
+           					          :voter_id => @visitor.id
+           	  				         }).order('created_at ASC')
 	  response = []
 
 	  votes.each do |vote|

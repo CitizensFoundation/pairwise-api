@@ -109,20 +109,14 @@ class QuestionsController < InheritedResources::Base
 
     visitors = []
     if object_type == "votes"
-      votes_by_visitor_id= Vote.all(:select => 'visitors.identifier as thevi, count(*) as the_votes_count',
-            :joins => :voter,
-            :conditions => {:question_id => @question.id },
-            :group => "voter_id")
+      votes_by_visitor_id= Vote.select('visitors.identifier as thevi, count(*) as the_votes_count').joins(:voter).where(:question_id => @question.id).group("voter_id")
 
 
       votes_by_visitor_id.each do |visitor|
         visitors.push({:visitor_id => visitor.thevi, :count => visitor.the_votes_count})
       end
     elsif object_type == "skips"
-      skips_by_visitor_id= Skip.all(:select => 'visitors.identifier as thevi, count(*) as the_votes_count',
-            :joins => :skipper,
-            :conditions => {:question_id => @question.id },
-            :group => "skipper_id")
+      skips_by_visitor_id= Skip.select('visitors.identifier as thevi, count(*) as the_votes_count').joins(:skipper).where(:question_id => @question.id).group("skipper_id")
 
 
       skips_by_visitor_id.each do |visitor|
@@ -130,9 +124,7 @@ class QuestionsController < InheritedResources::Base
       end
     elsif object_type == "uploaded_ideas"
 
-      uploaded_ideas_by_visitor_id = @question.choices.find(:all, :select => 'creator_id, count(*) as ideas_count',
-                   :conditions => "choices.creator_id != #{@question.creator_id}",
-                                                             :group => 'creator_id')
+      uploaded_ideas_by_visitor_id = @question.choices.select('creator_id, count(*) as ideas_count').where("choices.creator_id != #{@question.creator_id}").group('creator_id')
 
       count = 0
       uploaded_ideas_by_visitor_id.each do |visitor|
@@ -154,7 +146,7 @@ class QuestionsController < InheritedResources::Base
       possible_bounces = @question.appearances.count(:group => :voter_id, :having => 'count_all = 1')
             possible_bounce_ids = possible_bounces.inject([]){|list, (k,v)| list << k}
 
-      voted_at_least_once = @question.votes.find(:all, :select => :voter_id, :conditions => {:voter_id => possible_bounce_ids})
+      voted_at_least_once = @question.votes.select(:voter_id).where(:voter_id => possible_bounce_ids)
       voted_at_least_once_ids = voted_at_least_once.inject([]){|list, v| list << v.voter_id}
 
       bounces = possible_bounce_ids - voted_at_least_once_ids
@@ -178,35 +170,25 @@ class QuestionsController < InheritedResources::Base
     visitors = []
     if scope == "all_votes"
 
-      votes_by_visitor_id= Vote.all(:select => 'visitors.identifier as thevi, count(*) as the_votes_count',
-             :joins => :voter,
-             :group => "voter_id")
+      votes_by_visitor_id= Vote.select('visitors.identifier as thevi, count(*) as the_votes_count').joins(:voter).group("voter_id")
       votes_by_visitor_id.each do |visitor|
         visitors.push({:visitor_id => visitor.thevi, :count => visitor.the_votes_count})
       end
     elsif scope == "all_photocracy_votes"
 
-      votes_by_visitor_id= Vote.all(:select => 'visitors.identifier as thevi, count(*) as the_votes_count',
-             :joins => :voter,
-             :conditions => { :visitors => { :site_id => PHOTOCRACY_SITE_ID }},
-             :group => "voter_id")
+      votes_by_visitor_id= Vote.select('visitors.identifier as thevi, count(*) as the_votes_count').joins(:voter).where(:visitors => { :site_id => PHOTOCRACY_SITE_ID }).group("voter_id")
       votes_by_visitor_id.each do |visitor|
         visitors.push({:visitor_id => visitor.thevi, :count => visitor.the_votes_count})
       end
     elsif scope == "all_aoi_votes"
 
-      votes_by_visitor_id= Vote.all(:select => 'visitors.identifier as thevi, count(*) as the_votes_count',
-             :joins => :voter,
-             :conditions => { :visitors => { :site_id => ALLOURIDEAS_SITE_ID }},
-             :group => "voter_id")
+      votes_by_visitor_id= Vote.select('visitors.identifier as thevi, count(*) as the_votes_count').joins(:voter).where(:visitors => { :site_id => ALLOURIDEAS_SITE_ID }).group("voter_id")
       votes_by_visitor_id.each do |visitor|
         visitors.push({:visitor_id => visitor.thevi, :count => visitor.the_votes_count})
       end
     elsif scope == "creators"
 
-      questions_created_by_visitor_id = Question.all(:select => 'visitors.identifier as thevi, count(*) as questions_count',
-                 :joins => :creator,
-                 :group => 'creator_id')
+      questions_created_by_visitor_id = Question.select('visitors.identifier as thevi, count(*) as questions_count').joins(:creator).group('creator_id')
       questions_created_by_visitor_id.each do |visitor|
         visitors.push({:visitor_id => visitor.thevi, :count => visitor.questions_count})
       end
@@ -253,8 +235,7 @@ class QuestionsController < InheritedResources::Base
       data[maxdate] = 0 if !data.include?(maxdate) && !maxdate.nil?
     elsif object_type == 'user_sessions'
       # little more work to do here:
-      result = Vote.find(:all, :select => 'date(created_at) as date, voter_id, count(*) as vote_count',
-       :conditions => "question_id = #{@question.id}", :group => 'date(created_at), voter_id')
+      result = Vote.select('date(created_at) as date, voter_id, count(*) as vote_count').where("question_id = #{@question.id}").group('date(created_at), voter_id')
       data = Hash.new(0)
       result.each do |r|
         data[r.date]+=1
@@ -263,8 +244,8 @@ class QuestionsController < InheritedResources::Base
     elsif object_type == 'appearances_by_creation_date'
 
             array = []
-      @question.choices.active.find(:all, :order => :created_at).each do |c|
-               relevant_prompts = c.prompts_on_the_left.find(:all, :select => 'id') + c.prompts_on_the_right.find(:all, :select => 'id')
+      @question.choices.active.order(:created_at).each do |c|
+               relevant_prompts = c.prompts_on_the_left.select('id') + c.prompts_on_the_right.select('id')
 
          appearances = Appearance.count(:conditions => {:prompt_id => relevant_prompts, :question_id => @question.id})
 
@@ -300,8 +281,7 @@ class QuestionsController < InheritedResources::Base
               :conditions => "choices.creator_id <> questions.creator_id",
         :group => "date(choices.created_at)")
     elsif object_type == 'user_sessions'
-      result = Vote.find(:all, :select => 'date(created_at) as date, voter_id, count(*) as vote_count',
-       :group => 'date(created_at), voter_id')
+      result = Vote.select('date(created_at) as date, voter_id, count(*) as vote_count').group('date(created_at), voter_id')
       hash = Hash.new(0)
       result.each do |r|
         hash[r.date]+=1
