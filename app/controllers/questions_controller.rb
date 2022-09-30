@@ -324,27 +324,24 @@ class QuestionsController < InheritedResources::Base
 
     counts = {}
     if params[:user_ideas]
-      counts['user-ideas'] = Choice.count(:joins => :question,
-                                         :conditions => "choices.creator_id <> questions.creator_id",
-                                         :group => "choices.question_id")
+      counts['user-ideas'] = Choice.joins(:question).where("choices.creator_id <> questions.creator_id").group("choices.question_id").count
     end
     if params[:active_user_ideas]
-      counts['active-user-ideas'] = Choice.count(:joins => :question,
-                                                :conditions => "choices.active = 1 AND choices.creator_id <> questions.creator_id",
-                                                :group => "choices.question_id")
+      counts['active-user-ideas'] = Choice.joins(:question).where("choices.active = 1 AND choices.creator_id <> questions.creator_id").group("choices.question_id").count
     end
     if params[:votes_since]
-      counts['recent-votes'] = Vote.count(:joins => :question,
-                                         :conditions => ["votes.created_at > ?", params[:votes_since]],
-                                         :group => "votes.question_id")
+      counts['recent-votes'] = Vote.joins(:question).where("votes.created_at > ?", params[:votes_since]).group("votes.question_id").count
     end
 
     # only return questions with these recent votes
     if counts['recent-votes'] && params[:all] != 'true'
-      @questions = current_user.questions.scoped({}).where(id: counts['recent-votes'].keys)
+      puts "IJIJIJIJIJIJ"
+      @questions = current_user.questions.unscoped().where(id: counts['recent-votes'].keys)
     else
-      @questions = current_user.questions.scoped({})
-      @questions = @questions.created_by(params[:creator]) if params[:creator]
+      puts "IJHHYHY--9()()()8"
+      @questions = current_user.questions.unscoped()
+      puts @questions
+      @questions = @questions.where(creator: params[:creator]) if params[:creator]
     end
 
     # There doesn't seem to be a good way to add procs to an array of
@@ -359,9 +356,15 @@ class QuestionsController < InheritedResources::Base
       end
     end
 
+    puts @questions
+    puts counts['recent-votes']
+
     index! do |format|
       format.xml do
         render :xml => @questions.to_xml(:procs => [ extra_info ])
+      end
+      format.json do
+        render :json => @questions.to_json(:procs => [ extra_info ])
       end
     end
   end
