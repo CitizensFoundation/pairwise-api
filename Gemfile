@@ -35,6 +35,7 @@ gem "fastercsv", "1.5.1", :platforms => :ruby_18
 gem "delayed_job", "4.1.10"
 gem "redis", "~> 4.7.1"
 gem "test-unit", "1.2.3"
+gem "highcharts-rails"
 gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 gem "jbuilder"
 gem "sendgrid", "1.2.4"

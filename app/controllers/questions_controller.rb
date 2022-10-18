@@ -161,6 +161,7 @@ class QuestionsController < InheritedResources::Base
     end
     respond_to do |format|
       format.xml{ render :xml => visitors.to_xml and return}
+      format.json{ render :json => visitors.to_json and return}
     end
   end
 

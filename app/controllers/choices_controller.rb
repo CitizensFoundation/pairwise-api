@@ -8,7 +8,7 @@ class ChoicesController < InheritedResources::Base
 
   def index
     if params[:limit]
-      @question = current_user.questions.find(params[:question_id]).first
+      @question = current_user.questions.find(params[:question_id])
 
       find_options = {:conditions => {:question_id => @question.id}
 		      }
