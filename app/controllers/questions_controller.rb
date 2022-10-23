@@ -336,10 +336,10 @@ class QuestionsController < InheritedResources::Base
 
     # only return questions with these recent votes
     if counts['recent-votes'] && params[:all] != 'true'
-      puts "IJIJIJIJIJIJ"
+      puts "DEBUG RECOTES: #{counts['recent-votes'].inspect}"
       @questions = current_user.questions.unscoped().where(id: counts['recent-votes'].keys)
     else
-      puts "IJHHYHY--9()()()8"
+      puts "DEBUG ALL QUESTIONS"
       @questions = current_user.questions.unscoped()
       puts @questions
       @questions = @questions.where(creator: params[:creator]) if params[:creator]
