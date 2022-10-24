@@ -17,7 +17,8 @@ production: &default
   password: <%= ENV['PAIRWISE_MYSQL_PASSWORD'] %>
   pool: 5
   timeout: 5000
-  host: <%= ENV['PAIRWISE_MYSQL_HOST'] %>
+  port: 3306
+  host: 127.0.0.1
 
 test: &test
   <<: *default
