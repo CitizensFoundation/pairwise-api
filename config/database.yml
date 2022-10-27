@@ -8,6 +8,7 @@ development:
   password: <%= ENV['PAIRWISE_MYSQL_PASSWORD'] %>
   pool: 5
   timeout: 5000
+  collation: utf8_general_ci
   host: <%= ENV['PAIRWISE_MYSQL_HOST'] %>
 
 production:
@@ -17,6 +18,7 @@ production:
   password: <%= ENV.fetch('PAIRWISE_MYSQL_PASSWORD') %>
   pool: 5
   timeout: 5000
+  collation: utf8_general_ci
   port: <%= ENV.fetch('PAIRWISE_MYSQL_PORT') %>
   host: <%= ENV.fetch('PAIRWISE_MYSQL_HOST') %>
 
