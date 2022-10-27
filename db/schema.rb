@@ -11,7 +11,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
-  create_table "appearances", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "appearances", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "voter_id"
     t.integer "site_id"
     t.integer "prompt_id"
@@ -31,7 +31,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["question_id", "voter_id"], name: "index_appearances_on_question_id_voter_id"
   end
 
-  create_table "choice_versions", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "choice_versions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "choice_id"
     t.integer "version"
     t.integer "item_id"
@@ -56,7 +56,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["choice_id"], name: "index_choice_versions_on_choice_id"
   end
 
-  create_table "choices", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "choices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "item_id"
     t.integer "question_id"
     t.integer "position"
@@ -81,7 +81,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["question_id", "score"], name: "index_choices_on_question_id_and_score"
   end
 
-  create_table "clicks", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "clicks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "site_id"
     t.integer "visitor_id"
     t.text "additional_info"
@@ -90,7 +90,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.string "what_was_clicked"
   end
 
-  create_table "delayed_jobs", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "delayed_jobs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "priority", default: 0
     t.integer "attempts", default: 0
     t.text "handler"
@@ -105,7 +105,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
-  create_table "densities", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "densities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "question_id"
     t.float "value"
     t.string "prompt_type", default: ""
@@ -113,7 +113,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.datetime "updated_at"
   end
 
-  create_table "exports", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "exports", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", default: ""
     t.integer "question_id"
     t.binary "data", size: :long
@@ -121,7 +121,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["name"], name: "index_exports_on_name"
   end
 
-  create_table "flags", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "flags", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "explanation", default: ""
     t.integer "visitor_id"
     t.integer "choice_id"
@@ -131,7 +131,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.datetime "updated_at"
   end
 
-  create_table "old_items", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "old_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "data"
     t.boolean "active"
     t.text "tracking"
@@ -144,7 +144,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["creator_id"], name: "index_items_on_creator_id"
   end
 
-  create_table "oldskips", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "oldskips", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "skipper_id"
     t.integer "prompt_id"
     t.text "tracking"
@@ -152,7 +152,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.datetime "updated_at"
   end
 
-  create_table "oldvotes", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "oldvotes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "tracking"
     t.integer "site_id"
     t.integer "voter_id"
@@ -162,7 +162,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.datetime "updated_at"
   end
 
-  create_table "prompts", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "prompts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "question_id"
     t.integer "left_choice_id"
     t.integer "right_choice_id"
@@ -176,7 +176,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["right_choice_id"], name: "index_prompts_on_right_choice_id"
   end
 
-  create_table "question_versions", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "question_versions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "question_id"
     t.integer "version"
     t.integer "creator_id"
@@ -198,7 +198,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["question_id"], name: "index_question_versions_on_question_id"
   end
 
-  create_table "questions", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "questions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "creator_id"
     t.string "name", default: ""
     t.datetime "created_at"
@@ -218,7 +218,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.integer "version"
   end
 
-  create_table "skips", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "skips", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "tracking"
     t.integer "site_id"
     t.integer "skipper_id"
@@ -236,7 +236,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["question_id"], name: "index_skips_on_question_id"
   end
 
-  create_table "users", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email"
     t.string "encrypted_password", limit: 128
     t.string "salt", limit: 128
@@ -251,7 +251,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["remember_token"], name: "index_users_on_remember_token"
   end
 
-  create_table "visitors", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "visitors", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "site_id"
     t.string "identifier", default: ""
     t.text "tracking"
@@ -262,7 +262,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.index ["identifier", "site_id"], name: "index_visitors_on_identifier_and_site_id", unique: true
   end
 
-  create_table "votes", charset: "utf8mb4", collation: "utf8_general_ci", force: :cascade do |t|
+  create_table "votes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "tracking"
     t.integer "site_id"
     t.integer "voter_id"
