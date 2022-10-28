@@ -714,7 +714,7 @@ class Question < ActiveRecord::Base
   #
   # On success, this method always an appearance.
   def create_or_find_next_appearance(visitor, params, offset=0)
-    puts "MMMMMMMMMMMMMMMMMMMMMMMMMMMMM 1"
+    puts "--------------- 409 DEBUG 1"
     prompt = appearance = nil
     # We'll retry this block at most 2 times due to deadlocks.
     max_retries = 2
@@ -725,13 +725,18 @@ class Question < ActiveRecord::Base
     # entirety. We've only seen deadlocks in the call to record_appearnce.
     begin
       Appearance.transaction do
+        puts "--------------- 409 DEBUG 2"
         appearance = get_first_unanswered_appearance(visitor, offset)
+        puts "--------------- 409 DEBUG 3"
         if appearance.nil?
+          puts "--------------- 409 DEBUG 4"
           # Only choose prompt if we don't already have one. If we had to
           # retry this transaction due to a deadlock, a prompt may have been
           # selected previously.
           prompt = choose_prompt(:algorithm => params[:algorithm]) unless prompt
+          puts "--------------- 409 DEBUG 5"
           appearance = self.site.record_appearance(visitor, prompt)
+          puts "--------------- 409 DEBUG 6"
         end
       end
     rescue ActiveRecord::StatementInvalid => error
@@ -746,7 +751,7 @@ class Question < ActiveRecord::Base
         raise
       end
     end
-    puts "MMMMMMMMMMMMMMMMMMMMMMMMMMMMM 1 #{appearance.inspect}"
+    puts "--------------- 409 DEBUG 6 #{appearance.inspect}"
 
     return appearance
   end
