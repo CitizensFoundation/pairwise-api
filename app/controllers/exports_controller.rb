@@ -1,5 +1,5 @@
 class ExportsController < InheritedResources::Base
-  before_filter :authenticate
+  before_action :authenticate
 
   def show
     e = Export.find_by(name: params[:id])

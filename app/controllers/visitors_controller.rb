@@ -1,6 +1,6 @@
 class VisitorsController < InheritedResources::Base
         respond_to :xml, :json
-	before_filter :authenticate
+        before_action :authenticate
   actions :index
 
   def index
