@@ -109,7 +109,9 @@ class Question < ActiveRecord::Base
 
     if self.uses_catchup? || options[:algorithm] == "catchup"
         logger.info("Question #{self.id} is using catchup algorithm!")
+        puts "--------------- 409 DEBUG 4.2.1"
         next_prompt = self.pop_prompt_queue
+        puts "--------------- 409 DEBUG 4.2.2"
         if next_prompt.nil?
           logger.info("DEBUG Catchup prompt cache miss! Nothing in prompt_queue")
           next_prompt = self.simple_random_choose_prompt
@@ -556,21 +558,33 @@ class Question < ActiveRecord::Base
 
   def pop_prompt_queue
     algorithm = {"name" => "catchup"}
+    puts "--------------- 409 DEBUG 4.2.1.1"
     begin
+      puts "--------------- 409 DEBUG 4.2.1.2"
       selected_prompt = $redis.lpop(self.pq_key)
+      puts "--------------- 409 DEBUG 4.2.1.3"
 
       # if it starts with { decode as JSON
       if !selected_prompt.nil? && selected_prompt.start_with?("{")
+        puts "--------------- 409 DEBUG 4.2.1.4"
         p_json = ActiveSupport::JSON.decode(selected_prompt)
+        puts "--------------- 409 DEBUG 4.2.1.5"
         prompt_id = p_json["id"]
         algorithm = p_json["algorithm"]
       else
+        puts "--------------- 409 DEBUG 4.2.1.6"
         prompt_id = selected_prompt
+        puts "--------------- 409 DEBUG 4.2.1.7"
       end
+      puts "--------------- 409 DEBUG 4.2.1.8"
       prompt = prompt_id.nil? ? nil : Prompt.find(prompt_id.to_i)
+      puts "--------------- 409 DEBUG 4.2.1.9"
     end until (prompt.nil? || prompt.active?)
+    puts "--------------- 409 DEBUG 4.2.1.10"
     $redis.expire(self.pq_key, @@expire_prompt_cache_in_seconds)
+    puts "--------------- 409 DEBUG 4.2.1.11"
     prompt.algorithm = algorithm if prompt
+    puts "--------------- 409 DEBUG 4.2.1.12"
     prompt
   end
 
