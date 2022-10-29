@@ -97,7 +97,7 @@ class Visitor < ActiveRecord::Base
     end
 
     options.merge!(:question_id => prompt.question_id, :prompt_id => prompt.id, :skipper_id => self.id)
-    prompt_skip = skips.create!(options)
+    prompt_skip = skips.create!(options.to_unsafe_h)
     if associate_appearance
       safely_associate_appearance(prompt_skip, @appearance, old_visitor_identifier)
     end
