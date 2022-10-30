@@ -63,6 +63,9 @@ class PromptsController < InheritedResources::Base
     skip_options.merge!(:prompt => @prompt, :question => @question)
 
     successful = response = current_user.record_skip(skip_options)
+    if successful.nil?
+      puts "DEBUG Failed to skip prompt #{params[:id]} with options #{skip_options.inspect} for user #{current_user.inspect}"
+    end
     optional_information = []
     if params[:next_prompt]
        begin
@@ -72,6 +75,7 @@ class PromptsController < InheritedResources::Base
 
            respond_to do |format|
               format.xml { render :xml => @prompt.to_xml, :status => :conflict and return}
+              format.json { render :json => @prompt.to_json, :status => :conflict and return }
            end
        end
 
@@ -86,7 +90,7 @@ class PromptsController < InheritedResources::Base
         format.json { render :json => response.to_json(:procs => optional_information, :methods => [:left_choice_text, :right_choice_text]), :status => :ok }
       else
         format.xml { render :xml => @prompt.to_xml, :status => :unprocessable_entity }
-        format.json { render :json => @prompt.to_xml, :status => :unprocessable_entity }
+        format.json { render :json => @prompt.to_json, :status => :unprocessable_entity }
       end
     end
   end

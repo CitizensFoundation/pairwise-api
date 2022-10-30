@@ -38,7 +38,7 @@ class Visitor < ActiveRecord::Base
     old_visitor_identifier = options.delete(:old_visitor_identifier)
 
     associate_appearance = false
-    if options[:appearance_lookup]
+    if options[:appearance_lookup] and options[:appearance_lookup]!=""
 
       puts "PPPPPPPPPPPPPP DEBUG 1 #{options[:appearance_lookup]}"
       @appearance = prompt.appearances.find_by(lookup: options.delete(:appearance_lookup))
@@ -65,6 +65,9 @@ class Visitor < ActiveRecord::Base
 
     puts "PPPPPPPPPPPPPP DEBUG 5 #{options.inspect}"
 
+    if options[:appearance_lookup]==""
+      options.delete(:appearance_lookup)
+    end
     v = votes.create!(options.to_unsafe_h)
 
     puts "PPPPPPPPPPPPPP DEBUG 6 #{v.inspect}"
@@ -74,22 +77,29 @@ class Visitor < ActiveRecord::Base
   end
 
   def skip!(options)
+    puts "DEBUG skipt! 1 #{options.inspect}"
     return nil if !options || !options[:prompt]
 
     prompt = options.delete(:prompt)
+    puts "DEBUG skipt! 2 prompt #{prompt.inspect}"
 
     old_visitor_identifier = options.delete(:old_visitor_identifier)
 
     associate_appearance = false
-    if options[:appearance_lookup]
+    puts "DEBUG skipt! 3 #{options.inspect}"
+    if options[:appearance_lookup] and options[:appearance_lookup]!=""
       @appearance = prompt.appearances.find_by(lookup: options.delete(:appearance_lookup))
+      puts "DEBUG skipt! 4 #{@appearance}"
       return nil unless @appearance
       # if the found appearance doesn't match this voter_id or the voter_id of
       # the old_visitor_identifier then don't proceed any further
       if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
+        puts "DEBUG skipt! 5 #{@appearance}"
         return nil
       end
       associate_appearance = true
+    else
+      options.delete(:appearance_lookup)
     end
     if options.delete(:force_invalid_vote)
       options.merge!(:valid_record => false)
@@ -101,6 +111,7 @@ class Visitor < ActiveRecord::Base
     if associate_appearance
       safely_associate_appearance(prompt_skip, @appearance, old_visitor_identifier)
     end
+    puts "DEBUG skipt! 6 #{prompt_skip.inspect}"
     prompt_skip
   end
 

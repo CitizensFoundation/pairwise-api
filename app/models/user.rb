@@ -56,12 +56,15 @@ class User < ActiveRecord::Base
 
 
   def record_skip(options)
+    puts "DEBUG record_skip 1 options are #{options.inspect}"
     visitor_identifier = options.delete(:visitor_identifier)
+    puts "DEBUG record_skip 2 visitor_identifier is #{visitor_identifier.inspect}"
     if visitor_identifier.nil?
       visitor = default_visitor
     else
       visitor = visitors.find_or_create_by(identifier: visitor_identifier)
     end
+    puts "DEBUG record_skip 3 visitor is #{visitor.inspect}"
     visitor.skip!(options)
   end
 
