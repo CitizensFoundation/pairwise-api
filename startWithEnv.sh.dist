@@ -1,6 +1,7 @@
 export PAIRWISE_MYSQL_USER=
 export PAIRWISE_MYSQL_PASSWORD=
 export PAIRWISE_MYSQL_HOST=
+export PAIRWISE_MYSQL_PORT=
 export PAIRWISE_MYSQL_DATABASE=aoi_pairwise_development
 export RAILS_MASTER_KEY=
 export S3_KEY=
