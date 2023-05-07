@@ -1,3 +1,4 @@
+# Rails 7 code that should work
 class PromptsController < InheritedResources::Base
   respond_to :xml, :json
   actions :show
@@ -6,11 +7,6 @@ class PromptsController < InheritedResources::Base
   has_scope :voted_on_by
   before_action :require_login
 
-    # To record a vote
-    #  required parameters - prompt id, ordinality, visitor_identifer?
-    #  optional params - visitor_identifier, appearance_lookup
-    # After recording vote, next prompt display parameters:
-    #   same as in show  - :with_prompt, with_appearance, with visitor_stats, etc
   def vote
     @question = current_user.questions.find(params[:question_id])
     @prompt = @question.prompts.find(params[:id])
@@ -18,36 +14,35 @@ class PromptsController < InheritedResources::Base
     vote_options = params[:vote] || {}
     vote_options.merge!(:prompt => @prompt, :question => @question)
 
-    puts "Voting on prompt #{params[:id]} with options #{vote_options.inspect}"
-
     successful = object = current_user.record_vote(vote_options)
-    puts "Successful: #{successful}"
 
     optional_information = []
     if params[:next_prompt]
        begin
-           params[:next_prompt].merge!(:with_prompt => true) # We always want to get the next possible prompt
+           params[:next_prompt].merge!(:with_prompt => true)
            @question_optional_information = @question.get_optional_information(params[:next_prompt])
        rescue RuntimeError
-
            respond_to do |format|
               format.xml { render :xml => @prompt.to_xml, :status => :conflict and return}
               format.json { render :json => @prompt.to_json, :status => :conflict and return }
            end
        end
        object = @question.prompts.find(@question_optional_information.delete(:picked_prompt_id))
+       @question_optional_information.each do |key, value|
+          optional_information << Proc.new { |options| options[key] = value }
+       end
     end
 
-    puts "OOOOOOOOOOOOOOOOOOOOOOO: #{object.inspect}"
+    object_hash = JSON.parse(object.to_json)
+    optional_information.each { |proc| proc.call(object_hash) }
+    object_hash[:left_choice_text] = object.left_choice.data
+    object_hash[:right_choice_text] = object.right_choice.data
 
-    @question_optional_information[:left_choice_text] = @prompt.left_choice.data
-    @question_optional_information[:right_choice_text] = @prompt.right_choice.data
-
-    final_json = JSON.dump(JSON.parse(object.to_json).merge(JSON.parse(@question_optional_information.to_json)))
+    final_json = JSON.dump(object_hash)
 
     respond_to do |format|
       if !successful.nil?
-        format.json { render :json =>final_json, :status => :ok }
+        format.json { render :json => final_json, :status => :ok }
       else
         format.json { render :json => @prompt.to_json, :status => :unprocessable_entity }
       end
