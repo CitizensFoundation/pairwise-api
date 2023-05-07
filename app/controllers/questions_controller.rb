@@ -25,9 +25,11 @@ class QuestionsController < InheritedResources::Base
     response_options = { :methods => [:item_count], :procs => optional_information }
     response_options[:include] = :versions if params[:version] == "all"
 +
-    logger.info("DEBUG DEBUG DEBUG")
+    logger.info("RESPONSE OPTIONS")
     logger.info("response options are #{response_options.inspect}")
+    logger.info("@QUESTION")
     logger.info(@question.to_json(response_options))
+    logger.info("OPTIONAL")
     logger.info(@question_optional_information)
 
     respond_to do |format|
@@ -36,6 +38,7 @@ class QuestionsController < InheritedResources::Base
       }
       format.json {
         render :json => @question.attributes.merge(@question_optional_information).to_json(response_options)
+        #render :json => @question.to_json(response_options)
       }
     end
   end
