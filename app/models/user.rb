@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
   has_many :clicks, :class_name => "Click", :foreign_key => "site_id"
 
   def default_visitor
-    visitors.where(:identifier => 'owner').first.first
+    visitors.where(:identifier => 'owner').first
   end
 
   def create_question(visitor_identifier, question_params)

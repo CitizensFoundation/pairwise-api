@@ -58,12 +58,14 @@ class Choice < ActiveRecord::Base
     unless self.score
       self.score = 50.0
     end
-    unless self.active?
-     #puts "this choice was not specifically set to active, so we are now asking if we should auto-activate"
-      self.active = question.should_autoactivate_ideas? ? true : false
-      #puts "should question autoactivate? #{question.should_autoactivate_ideas?}"
-      #puts "will this choice be active? #{self.active}"
+    #puts "this choice was not specifically set to active, so we are now asking if we should auto-activate"
+    if ENV.fetch("OPENAI_API_KEY")
+      self.active = true
+    else
+      self.active = true #question.should_autoactivate_ideas? ? true : false
     end
+    #puts "should question autoactivate? #{question.should_autoactivate_ideas?}"
+    #puts "will this choice be active? #{self.active}"
     return true #so active record will save
   end
 

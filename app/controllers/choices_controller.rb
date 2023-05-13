@@ -50,17 +50,29 @@ class ChoicesController < InheritedResources::Base
 
   def create
 
+    params[:choice][:visitor_identifier] = params[:visitor_identifier]
+
     visitor_identifier = params[:choice].delete(:visitor_identifier)
+    puts "visitor_identifier: #{visitor_identifier}"
 
     visitor = current_user.default_visitor
+    puts "visitor 1: #{visitor}"
+    puts "current_user: #{current_user}"
     if visitor_identifier
       visitor = current_user.visitors.find_or_create_by(identifier: visitor_identifier)
     end
+
     params[:choice].merge!(:creator => visitor)
+
+    puts "visitor 2: #{visitor}"
+    puts "params[:choice]: #{params[:choice]}"
 
     @question = current_user.questions.find(params[:question_id])
     params[:choice].merge!(:question_id => @question.id)
 
+    if ENV.fetch("OPENAI_API_KEY")
+      params[:choice][:active] = true
+    end
 
     @choice = Choice.new(params[:choice])
     create!
