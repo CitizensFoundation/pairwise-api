@@ -339,12 +339,9 @@ class QuestionsController < InheritedResources::Base
 
     # only return questions with these recent votes
     if counts['recent-votes'] && params[:all] != 'true'
-      puts "DEBUG RECOTES: #{counts['recent-votes'].inspect}"
       @questions = current_user.questions.unscoped().where(id: counts['recent-votes'].keys)
     else
-      puts "DEBUG ALL QUESTIONS #{params[:creator]}"
       @questions = current_user.questions.unscoped()
-      puts "BBB #{@questions}"
       @questions = @questions.where(local_identifier: params[:creator]) if params[:creator]
     end
 
@@ -359,9 +356,6 @@ class QuestionsController < InheritedResources::Base
         o[:builder].tag!(attr, hash[id] || 0 , :type => "integer")
       end
     end
-
-    puts "AAAAA #{@questions.count}"
-    puts counts['recent-votes']
 
     index! do |format|
       format.xml do
