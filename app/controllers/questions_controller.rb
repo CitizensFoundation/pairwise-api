@@ -342,10 +342,10 @@ class QuestionsController < InheritedResources::Base
       puts "DEBUG RECOTES: #{counts['recent-votes'].inspect}"
       @questions = current_user.questions.unscoped().where(id: counts['recent-votes'].keys)
     else
-      puts "DEBUG ALL QUESTIONS"
+      puts "DEBUG ALL QUESTIONS #{params[:creator]}"
       @questions = current_user.questions.unscoped()
-      puts @questions
-      @questions = @questions.where(creator: params[:creator]) if params[:creator]
+      puts "BBB #{@questions}"
+      @questions = @questions.where(local_identifier: params[:creator]) if params[:creator]
     end
 
     # There doesn't seem to be a good way to add procs to an array of
@@ -360,7 +360,7 @@ class QuestionsController < InheritedResources::Base
       end
     end
 
-    puts @questions
+    puts "AAAAA #{@questions.count}"
     puts counts['recent-votes']
 
     index! do |format|

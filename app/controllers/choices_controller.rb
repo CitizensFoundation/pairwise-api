@@ -70,7 +70,7 @@ class ChoicesController < InheritedResources::Base
     @question = current_user.questions.find(params[:question_id])
     params[:choice].merge!(:question_id => @question.id)
 
-    if ENV.fetch("OPENAI_API_KEY")
+    if ENV.has_key?("OPENAI_API_KEY")
       params[:choice][:active] = true
     end
 
