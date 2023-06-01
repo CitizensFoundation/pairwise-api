@@ -8,7 +8,7 @@ development:
   password: <%= ENV['PAIRWISE_MYSQL_PASSWORD'] %>
   pool: 5
   timeout: 5000
-  collation: utf8_general_ci
+  encoding: utf8mb4
   host: <%= ENV['PAIRWISE_MYSQL_HOST'] %>
 
 production:
@@ -16,9 +16,10 @@ production:
   database: <%= ENV.fetch('PAIRWISE_MYSQL_DATABASE') %>
   username: <%= ENV.fetch('PAIRWISE_MYSQL_USER') %>
   password: <%= ENV.fetch('PAIRWISE_MYSQL_PASSWORD') %>
+  sslmode: <%= ENV['PAIRWISE_MYSQL_SSLMODE'] %>
   pool: 5
   timeout: 5000
-  collation: utf8_general_ci
+  encoding: utf8mb4
   port: <%= ENV.fetch('PAIRWISE_MYSQL_PORT') %>
   host: <%= ENV.fetch('PAIRWISE_MYSQL_HOST') %>
 
