@@ -12,5 +12,5 @@ $redis = Redis.new(
   port: REDIS_CONFIG['port'],
   username: REDIS_CONFIG['username'],
   password: REDIS_CONFIG['password'],
-  ssl: REDIS_CONFIG['ssl'] # Added this line
+  ssl: REDIS_CONFIG['ssl']
 )
