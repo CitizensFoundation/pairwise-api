@@ -302,11 +302,23 @@ class QuestionsController < InheritedResources::Base
   end
 
   def update
+    @question = current_user.questions.find(params[:id])
+    @question.update_attributes(:name => params[:name])
+    @question.save
+  end
+
+  def update_org
     # prevent AttributeNotFound error and only update actual Question columns, since we add extra information in 'show' method
     question_attributes = Question.new.attribute_names
     params[:question] = params[:question].delete_if {|key, value| !question_attributes.include?(key)}
     @question = current_user.questions.find(params[:id])
     update!
+  end
+
+  def update_name
+    @question = current_user.questions.find(params[:id])
+    @question.update_attributes(:name => params[:name])
+    @question.save
   end
 
   def site_stats

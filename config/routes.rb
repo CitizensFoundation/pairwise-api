@@ -1,4 +1,7 @@
 PairwiseApi::Application.routes.draw do
+
+  get "/healthcheck" => "healthcheck#index", :as => :healthcheck
+
   resources :densities, :only => :index
   resources :visitors, :only => :index do
     collection do

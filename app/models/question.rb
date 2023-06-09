@@ -100,33 +100,33 @@ class Question < ActiveRecord::Base
   end
 
   def choose_prompt(options = {})
-    puts "--------------- 409 DEBUG 4.1"
+    #puts "--------------- 409 DEBUG 4.1"
           # if there is one or fewer active choices, we won't be able to find a prompt
     if self.choices.size - self.inactive_choices_count <= 1
       raise RuntimeError, "More than one choice needs to be active"
     end
-    puts "--------------- 409 DEBUG 4.2"
+    #puts "--------------- 409 DEBUG 4.2"
 
     if self.uses_catchup? || options[:algorithm] == "catchup"
         logger.info("Question #{self.id} is using catchup algorithm!")
-        puts "--------------- 409 DEBUG 4.2.1"
+        #puts "--------------- 409 DEBUG 4.2.1"
         next_prompt = self.pop_prompt_queue
-        puts "--------------- 409 DEBUG 4.2.2"
+        #puts "--------------- 409 DEBUG 4.2.2"
         if next_prompt.nil?
           logger.info("DEBUG Catchup prompt cache miss! Nothing in prompt_queue")
           next_prompt = self.simple_random_choose_prompt
           record_prompt_cache_miss
         else
-          puts "--------------- 409 DEBUG 4.3"
+          #puts "--------------- 409 DEBUG 4.3"
           record_prompt_cache_hit
         end
-        puts "--------------- 409 DEBUG 4.4"
+        #puts "--------------- 409 DEBUG 4.4"
         self.delay.add_prompt_to_queue
-        puts "--------------- 409 DEBUG 4.5"
+        #puts "--------------- 409 DEBUG 4.5"
         return next_prompt
     else
         #Standard choose prompt at random
-        puts "--------------- 409 DEBUG 4.6"
+        #puts "--------------- 409 DEBUG 4.6"
         return self.simple_random_choose_prompt
     end
 

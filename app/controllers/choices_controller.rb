@@ -111,7 +111,7 @@ class ChoicesController < InheritedResources::Base
     params[:choice] = params[:choice].delete_if {|key, value| !choice_attributes.include?(key)}
     Choice.transaction do
       # lock question since we'll need a lock on it later in Choice.update_questions_counter
-      @question = current_user.questions.find(params[:question_id], :lock => true)
+      @question = current_user.questions.lock(true).find(params[:question_id])
       @choice = @question.choices.find(params[:id])
       update!
     end
