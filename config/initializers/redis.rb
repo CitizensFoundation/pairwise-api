@@ -1,4 +1,8 @@
 require 'redis'
+require 'yaml'
+
+redis_yml = Rails.root.join('config', 'redis.yml')
+REDIS_CONFIG = YAML::load(ERB.new(IO.read(redis_yml)).result)[Rails.env]
 
 puts "REDIS CONFIGURATION"
 puts "Host: #{REDIS_CONFIG['host']}"
