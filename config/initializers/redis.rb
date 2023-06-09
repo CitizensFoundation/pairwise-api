@@ -1,14 +1,16 @@
 require 'redis'
 
-puts "REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS REDIS"
-puts "Host: #{ENV['REDIS_HOST']}"
-puts "Port: #{ENV['REDIS_PORT']}"
-puts "Username: #{ENV['REDIS_USERNAME']}"
-puts "Password: #{ENV['REDIS_PASSWORD']}"
+puts "REDIS CONFIGURATION"
+puts "Host: #{REDIS_CONFIG['host']}"
+puts "Port: #{REDIS_CONFIG['port']}"
+puts "Username: #{REDIS_CONFIG['username']}"
+puts "Password: #{REDIS_CONFIG['password']}"
+puts "SSL: #{REDIS_CONFIG['ssl']}"
 
 $redis = Redis.new(
-  host: ENV['REDIS_HOST'],
-  port: ENV['REDIS_PORT'].to_i,
-  username: ENV['REDIS_USERNAME'],
-  password: ENV['REDIS_PASSWORD']
+  host: REDIS_CONFIG['host'],
+  port: REDIS_CONFIG['port'],
+  username: REDIS_CONFIG['username'],
+  password: REDIS_CONFIG['password'],
+  ssl: REDIS_CONFIG['ssl'] # Added this line
 )
