@@ -10,7 +10,7 @@ gem "puma"
 gem "passenger"
 gem "iconv"
 gem 'bootsnap', require: false
-gem "bugsnag", "~> 5.5.0"
+gem "bugsnag", "~> 6.25.2"
 gem "rake", ">= 13.0.6"
 gem "rdoc", "~> 3.12"
 gem "rails", "7.0.4.3"

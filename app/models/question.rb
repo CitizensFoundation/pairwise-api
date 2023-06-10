@@ -735,8 +735,8 @@ class Question < ActiveRecord::Base
   def create_or_find_next_appearance(visitor, params, offset=0)
     puts "--------------- 409 DEBUG 1"
     prompt = appearance = nil
-    # We'll retry this block at most 2 times due to deadlocks.
-    max_retries = 2
+    # We'll retry this block at most 4 times due to deadlocks.
+    max_retries = 4
     retry_count = 0
 
     # The entire transaction is wrapped in this block because if it failed due
@@ -765,6 +765,7 @@ class Question < ActiveRecord::Base
       if error.message =~ /#{deadlock_msg}/ && retry_count < max_retries
         retry_count += 1
         logger.info "Retry ##{retry_count} after deadlock: #{error.inspect}"
+        sleep(retry_count * 0.25)
         retry
       else
         raise

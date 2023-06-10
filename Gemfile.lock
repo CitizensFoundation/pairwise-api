@@ -73,7 +73,8 @@ GEM
     bcrypt (3.1.18)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
-    bugsnag (5.5.0)
+    bugsnag (6.25.2)
+      concurrent-ruby (~> 1.0)
     builder (3.2.4)
     clearance (2.6.1)
       actionmailer (>= 5.0)
@@ -275,7 +276,7 @@ PLATFORMS
 DEPENDENCIES
   ambethia-smtp-tls (= 1.1.2)
   bootsnap
-  bugsnag (~> 5.5.0)
+  bugsnag (~> 6.25.2)
   clearance
   cucumber (= 1.1.0)
   cucumber-rails (= 0.3.2)
