@@ -87,6 +87,7 @@ class QuestionsController < InheritedResources::Base
     @question = current_user.questions.find(params[:id])
     respond_to do |format|
       format.xml{ render :xml => {:median => @question.median_votes_per_session}.to_xml and return}
+      format.json{ render :json => {:median => @question.median_votes_per_session}.to_json and return}
     end
   end
 
@@ -94,6 +95,7 @@ class QuestionsController < InheritedResources::Base
     @question = current_user.questions.find(params[:id])
     respond_to do |format|
       format.xml{ render :xml => {:median => @question.median_responses_per_session}.to_xml and return}
+      format.json{ render :json => {:median => @question.median_responses_per_session}.to_json and return}
     end
   end
 
@@ -102,6 +104,7 @@ class QuestionsController < InheritedResources::Base
     only_active = params[:only_active] == 'true'
     respond_to do |format|
       format.xml{ render :xml => {:value => @question.votes_per_uploaded_choice(only_active)}.to_xml and return}
+      format.json{ render :json => {:value => @question.votes_per_uploaded_choice(only_active)}.to_json and return}
     end
   end
 
@@ -200,6 +203,7 @@ class QuestionsController < InheritedResources::Base
     end
     respond_to do |format|
       format.xml{ render :xml => visitors.to_xml and return}
+      format.json{ render :json => visitors.to_json and return}
     end
   end
 
@@ -208,6 +212,7 @@ class QuestionsController < InheritedResources::Base
     response = {:voterate => @question.vote_rate}
     respond_to do |format|
       format.xml { render :xml => response.to_xml and return}
+      format.json { render :json => response.to_json and return}
     end
   end
 
@@ -216,6 +221,7 @@ class QuestionsController < InheritedResources::Base
     response = {:uploadparticipationrate => @question.upload_to_participation_rate}
     respond_to do |format|
       format.xml { render :xml => response.to_xml and return}
+      format.json { render :json => response.to_json and return}
     end
   end
 
@@ -271,6 +277,7 @@ class QuestionsController < InheritedResources::Base
 
     respond_to do |format|
       format.xml { render :xml => array.to_xml and return}
+      format.json { render :json => array.to_json and return}
     end
   end
 
@@ -298,6 +305,7 @@ class QuestionsController < InheritedResources::Base
     end
     respond_to do |format|
       format.xml { render :xml => array.to_xml and return}
+      format.json { render :json => array.to_json and return}
     end
   end
 

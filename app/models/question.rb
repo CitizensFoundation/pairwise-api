@@ -820,8 +820,12 @@ class Question < ActiveRecord::Base
     sessions_with_uploaded_ideas.to_f / swp.to_f
   end
 
-  # total number of sessions that have uploaded an idea
   def sessions_with_uploaded_ideas
+    choices.where("creator_id <> ?", creator_id).select(:creator_id).distinct.count
+  end
+
+  # total number of sessions that have uploaded an idea
+  def sessions_with_uploaded_ideas_old
     choices.where("creator_id <> ?", creator_id).group(:creator_id).count
   end
 
@@ -847,7 +851,7 @@ class Question < ActiveRecord::Base
   end
 
   def total_uniq_sessions
-    appearances.count(:select => "DISTINCT(voter_id)")
+    appearances.select(:voter_id).distinct.count
   end
 
   # total number of sessions with at least one vote
