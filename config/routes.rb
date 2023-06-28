@@ -43,8 +43,12 @@ PairwiseApi::Application.routes.draw do
         put :flag
         get :votes
         get :similar
+        get :show_votes
       end
     end
+  end
+
+  resources :choices do
   end
 
 end

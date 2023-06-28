@@ -6,7 +6,58 @@ class ChoicesController < InheritedResources::Base
 
   before_action :require_login
 
+  def show_votes
+    choice = Choice.find(params[:id])
+    votes = get_all_votes(choice, params)
+    render json: { winning_votes: votes[:winning_votes], losing_votes: votes[:losing_votes] }
+  end
+
   def index
+    params[:limit] = 1000 unless params[:limit]
+    @question = current_user.questions.find(params[:question_id])
+    find_options = {:conditions => {:question_id => @question.id}}
+    find_options[:conditions].merge!(:active => true) unless params[:include_inactive]
+    find_options.merge!(:offset => params[:offset]) if params[:offset]
+    where_options = find_options[:conditions].map{ |el| "choices.#{el.first}=#{el.last}" }.join(" AND ")
+    @choices = Choice.where(where_options).limit(params[:limit].to_i).order('score DESC').offset(params[:offset].to_i)
+
+    if params[:utm_source] || params[:utm_campaign]
+      out_choices = []
+      @choices.each do |choice|
+        votes = get_all_votes(choice, params)
+        choice.wins = votes[:winning_votes].count
+        choice.losses = votes[:losing_votes].count
+        choice.score = (choice.wins.to_f + 1) / (choice.wins + 1 + choice.losses + 1) * 100
+        if choice.wins+choice.losses > 9
+          out_choices << choice
+        end
+      end
+      @choices = out_choices.sort_by(&:score).reverse
+    end
+
+    index! do |format|
+      format.json { render :xml => @choices.to_json(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses], :methods => :user_created)}
+      format.xml { render :xml => @choices.to_xml(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses], :methods => :user_created)}
+    end
+  end
+
+  def get_all_votes(choice, params)
+    winning_votes = Vote.where(choice_id: choice.id, valid_record: true)
+    losing_votes = Vote.where(loser_choice_id: choice.id, valid_record: true)
+
+    if params[:utm_source]
+      winning_votes = winning_votes.where("votes.tracking LIKE ?", "%utm_source: #{params[:utm_source]}%")
+      losing_votes = losing_votes.where("votes.tracking LIKE ?", "%utm_source: #{params[:utm_source]}%")
+    end
+    if params[:utm_campaign]
+      winning_votes = winning_votes.where("votes.tracking LIKE ?", "%utm_campaign: #{params[:utm_campaign]}%")
+      losing_votes = losing_votes.where("votes.tracking LIKE ?", "%utm_campaign: #{params[:utm_campaign]}%")
+    end
+
+    { winning_votes: winning_votes, losing_votes: losing_votes }
+  end
+
+  def index_old
     if params[:limit]
       @question = current_user.questions.find(params[:question_id])
 
