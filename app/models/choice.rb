@@ -1,7 +1,7 @@
 class Choice < ActiveRecord::Base
   #TODO: Check if this is needed
   #acts_as_versioned :if_changed => [:data, :creator_id, :question_id, :active]
-
+  attr_accessor :elo_rating
   belongs_to :question, :counter_cache => true
   belongs_to :creator, :class_name => "Visitor", :foreign_key => "creator_id"
 

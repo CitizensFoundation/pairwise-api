@@ -20,20 +20,40 @@ class ChoicesController < InheritedResources::Base
     find_options.merge!(:offset => params[:offset]) if params[:offset]
     where_options = find_options[:conditions].map{ |el| "choices.#{el.first}=#{el.last}" }.join(" AND ")
     @choices = Choice.where(where_options).limit(params[:limit].to_i).order('score DESC').offset(params[:offset].to_i)
+    puts "where_options: #{where_options}"
 
-    if params[:utm_source] || params[:utm_campaign]
-      out_choices = []
-      @choices.each do |choice|
-        votes = get_all_votes(choice, params)
-        choice.wins = votes[:winning_votes].count
-        choice.losses = votes[:losing_votes].count
-        choice.score = (choice.wins.to_f + 1) / (choice.wins + 1 + choice.losses + 1) * 100
-        if choice.wins+choice.losses > 9
-          out_choices << choice
-        end
+    elo_ratings = Hash.new { 1000 }
+
+    @choices.each do |choice1|
+      @choices.each do |choice2|
+        next if choice1 == choice2 # Skip when choices are same
+
+        votes1 = Vote.where(choice_id: choice1.id, loser_choice_id: choice2.id)
+        votes2 = Vote.where(choice_id: choice2.id, loser_choice_id: choice1.id)
+
+        # If no votes exist between these choices, skip to next pair
+        next if votes1.count == 0 && votes2.count == 0
+
+        # calculate new Elo ratings based on votes
+        elo_ratings[choice1], elo_ratings[choice2] = calculate_elo(elo_ratings[choice1], elo_ratings[choice2], votes1.count, votes2.count)
       end
-      @choices = out_choices.sort_by(&:score).reverse
     end
+
+    @choices.each do |choice|
+      votes = get_all_votes(choice, params)
+      choice.wins = votes[:winning_votes].count
+      choice.losses = votes[:losing_votes].count
+      choice.score = (choice.wins.to_f + 1) / (choice.wins + 1 + choice.losses + 1) * 100
+      choice.elo_rating = elo_ratings[choice]
+    end
+
+    out_choices = []
+    @choices.each do |choice|
+      if choice.wins+choice.losses > 9
+        out_choices << choice
+      end
+    end
+    @choices = out_choices.sort_by(&:score).reverse
 
     index! do |format|
       format.json { render :xml => @choices.to_json(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses], :methods => :user_created)}
@@ -42,8 +62,8 @@ class ChoicesController < InheritedResources::Base
   end
 
   def get_all_votes(choice, params)
-    winning_votes = Vote.where(choice_id: choice.id, valid_record: true)
-    losing_votes = Vote.where(loser_choice_id: choice.id, valid_record: true)
+    winning_votes = Vote.where(choice_id: choice.id)
+    losing_votes = Vote.where(loser_choice_id: choice.id)
 
     if params[:utm_source]
       winning_votes = winning_votes.where("votes.tracking LIKE ?", "%utm_source: #{params[:utm_source]}%")
@@ -180,6 +200,15 @@ class ChoicesController < InheritedResources::Base
     end
   end
 
+
+  def calculate_elo(rating1, rating2, score1, score2)
+    k_factor = 32
+    expected1 = 1.0 / (1 + 10 ** ((rating2 - rating1) / 400.0))
+    expected2 = 1.0 / (1 + 10 ** ((rating1 - rating2) / 400.0))
+    new_rating1 = rating1 + k_factor * (score1 - expected1)
+    new_rating2 = rating2 + k_factor * (score2 - expected2)
+    return new_rating1, new_rating2
+  end
 
 end
 
