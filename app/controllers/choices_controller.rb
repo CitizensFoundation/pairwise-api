@@ -22,29 +22,11 @@ class ChoicesController < InheritedResources::Base
     @choices = Choice.where(where_options).limit(params[:limit].to_i).order('score DESC').offset(params[:offset].to_i)
     puts "where_options: #{where_options}"
 
-    elo_ratings = Hash.new { 1000 }
-
-    @choices.each do |choice1|
-      @choices.each do |choice2|
-        next if choice1 == choice2 # Skip when choices are same
-
-        votes1 = Vote.where(choice_id: choice1.id, loser_choice_id: choice2.id)
-        votes2 = Vote.where(choice_id: choice2.id, loser_choice_id: choice1.id)
-
-        # If no votes exist between these choices, skip to next pair
-        next if votes1.count == 0 && votes2.count == 0
-
-        # calculate new Elo ratings based on votes
-        elo_ratings[choice1], elo_ratings[choice2] = calculate_elo(elo_ratings[choice1], elo_ratings[choice2], votes1.count, votes2.count)
-      end
-    end
-
     @choices.each do |choice|
       votes = get_all_votes(choice, params)
       choice.wins = votes[:winning_votes].count
       choice.losses = votes[:losing_votes].count
       choice.score = (choice.wins.to_f + 1) / (choice.wins + 1 + choice.losses + 1) * 100
-      choice.elo_rating = elo_ratings[choice]
     end
 
     out_choices = []
@@ -56,8 +38,8 @@ class ChoicesController < InheritedResources::Base
     @choices = out_choices.sort_by(&:score).reverse
 
     index! do |format|
-      format.json { render :xml => @choices.to_json(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses], :methods => :user_created)}
-      format.xml { render :xml => @choices.to_xml(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses], :methods => :user_created)}
+      format.json { render :xml => @choices.to_json(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses, :elo_rating], :methods => :user_created)}
+      format.xml { render :xml => @choices.to_xml(:only => [ :data, :score, :id, :active, :created_at, :wins, :losses, :elo_rating], :methods => :user_created)}
     end
   end
 
