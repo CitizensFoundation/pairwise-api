@@ -31,7 +31,7 @@ class ChoicesController < InheritedResources::Base
 
     out_choices = []
     @choices.each do |choice|
-      if choice.wins+choice.losses > 9
+      if params[:show_all] or (choice.wins+choice.losses > 9)
         out_choices << choice
       end
     end
