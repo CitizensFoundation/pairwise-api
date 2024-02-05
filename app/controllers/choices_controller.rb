@@ -127,6 +127,10 @@ class ChoicesController < InheritedResources::Base
       params[:choice][:active] = true
     end
 
+    if params[:choice][:data].present?
+      params[:choice][:data] = params[:choice][:data].to_json
+    end
+
     @choice = Choice.new(params[:choice])
     create!
   end
@@ -166,7 +170,10 @@ class ChoicesController < InheritedResources::Base
       # lock question since we'll need a lock on it later in Choice.update_questions_counter
       @question = current_user.questions.lock(true).find(params[:question_id])
       @choice = @question.choices.find(params[:id])
-      update!
+      if params[:choice][:data].present?
+        params[:choice][:data] = params[:choice][:data].to_json
+      end
+      @choice.update!(params[:choice])
     end
   end
 
