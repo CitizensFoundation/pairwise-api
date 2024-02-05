@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_05_003103) do
   create_table "appearances", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "voter_id"
     t.integer "site_id"
@@ -74,7 +74,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_26_010347) do
     t.integer "wins", default: 0
     t.integer "losses", default: 0
     t.integer "prompts_count", default: 0
-    t.string "data"
+    t.text "data", size: :medium
     t.integer "creator_id"
     t.integer "version"
     t.index ["creator_id"], name: "index_choices_on_creator_id"
