@@ -45,11 +45,13 @@ class Visitor < ActiveRecord::Base
       return nil unless @appearance # don't allow people to fake appearance lookups
       puts "PPPPPPPPPPPPPP DEBUG 2 #{@appearance}"
 
-      # if the found appearance doesn't match this voter_id or the voter_id of
-      # the old_visitor_identifier then don't proceed any further
-      if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
-        return nil
-      end
+      #TODO: Look into this, does not work in the web app as the user can login and get a new voter_id without reloading the page for a new appearance
+      #if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
+      #  puts @appearance.voter_id
+      #  puts self.id
+      #  puts "================--------------------ERROR 1====================="
+      #  return nil
+      #end
       associate_appearance = true
     end
 
