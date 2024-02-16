@@ -3,6 +3,7 @@ source "https://rubygems.org"
 ruby '3.2.3'
 
 gem 'protected_attributes_continued'
+gem "pg"
 gem "memoist"
 gem "rtiss_acts_as_versioned"
 gem "delayed_job_active_record"
