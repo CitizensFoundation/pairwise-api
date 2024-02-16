@@ -321,7 +321,7 @@ DEPENDENCIES
   xml-simple (= 1.1.9)
 
 RUBY VERSION
-   ruby 3.2.0p0
+   ruby 3.2.3p157
 
 BUNDLED WITH
    2.3.7

@@ -1,10 +1,14 @@
+## Pairwise 4.0.0 (February 15, 2024) ##
+ * Drop Ruby 3.x
+ * Rails 7.x
+ * Various adaption to support a new NodeJS backend and webapp
+
+## Pairwise 3.2.1 (May 21, 2014) ##
  * Drop support for Ruby 1.8.7.
  * Add tau and alpha as parameters to catchup algorithm.
  * Record which algorithm was used to select a prompt.
  * Add similar choice method to find similar (currently only identical) choices.
  * Retry transaction when creating appearance if get deadlocked.
-
-## Pairwise 3.2.1 (May 21, 2014) ##
  * Create transaction and lock when creating a new appearance.
  * Remove votes from vote CSV file that have NA for Appearance ID.
  * Alter response for all_object_info_totals_by_date to be valid XML.
