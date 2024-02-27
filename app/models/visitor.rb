@@ -95,10 +95,10 @@ class Visitor < ActiveRecord::Base
       return nil unless @appearance
       # if the found appearance doesn't match this voter_id or the voter_id of
       # the old_visitor_identifier then don't proceed any further
-      if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
-        puts "DEBUG skipt! 5 #{@appearance}"
-        return nil
-      end
+      #if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
+      #  puts "DEBUG skipt! 5 #{@appearance}"
+      #  return nil
+      #end
       associate_appearance = true
     else
       options.delete(:appearance_lookup)
@@ -135,7 +135,9 @@ class Visitor < ActiveRecord::Base
   # Safely associates appearance with object, but making sure no other object
   # is already associated wit this appearance. object is either vote or skip.
   def safely_associate_appearance(object, appearance, old_visitor_identifier)
+    puts "DEBUG safely_associate_appearance 1 #{object.inspect} #{appearance.inspect} #{old_visitor_identifier}"
     appearance = clone_expired_appearance(object, appearance) if old_visitor_identifier
+    puts "DEBUG safely_associate_appearance 2 #{appearance.inspect}"
     # Manually update Appearance with id to ensure no double votes for a
     # single appearance.  Only update the answerable_id if it is NULL.
     # If we can't find any rows to update, then this object should be invalid.
