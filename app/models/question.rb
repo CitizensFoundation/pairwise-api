@@ -548,6 +548,7 @@ class Question < ActiveRecord::Base
     # if less than 90% full, regenerate prompts
     # we skip generating prompts if more than 90% full to
     # prevent one busy marketplace for ruling the queue
+    puts "----------------------> add_prompt_to_queue  <------------------------------------"
     if $redis.llen(self.pq_key) < @@num_prompts * @@percent_full
       prompts = self.catchup_choose_prompt(@@num_prompts)
       # clear list
