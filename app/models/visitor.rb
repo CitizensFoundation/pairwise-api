@@ -40,10 +40,10 @@ class Visitor < ActiveRecord::Base
     associate_appearance = false
     if options[:appearance_lookup] and options[:appearance_lookup]!=""
 
-      puts "PPPPPPPPPPPPPP DEBUG 1 #{options[:appearance_lookup]}"
+      #puts "PPPPPPPPPPPPPP DEBUG 1 #{options[:appearance_lookup]}"
       @appearance = prompt.appearances.find_by(lookup: options.delete(:appearance_lookup))
       return nil unless @appearance # don't allow people to fake appearance lookups
-      puts "PPPPPPPPPPPPPP DEBUG 2 #{@appearance}"
+      #puts "PPPPPPPPPPPPPP DEBUG 2 #{@appearance}"
 
       #TODO: Look into this, does not work in the web app as the user can login and get a new voter_id without reloading the page for a new appearance
       #if @appearance.voter_id != self.id && @appearance.voter_id != Visitor.find_by(identifier: old_visitor_identifier).try(:id)
@@ -55,43 +55,43 @@ class Visitor < ActiveRecord::Base
       associate_appearance = true
     end
 
-    puts "PPPPPPPPPPPPPP DEBUG 3 #{@appearance}"
+    #puts "PPPPPPPPPPPPPP DEBUG 3 #{@appearance}"
 
     choice = prompt.choices[ordinality] #we need to guarantee that the choices are in the right order (by position)
     other_choices = prompt.choices - [choice]
     loser_choice = other_choices.first
 
-    puts "PPPPPPPPPPPPPP DEBUG 4 #{choice.inspect}"
+    #puts "PPPPPPPPPPPPPP DEBUG 4 #{choice.inspect}"
 
     options.merge!(:question_id => prompt.question_id, :prompt => prompt, :voter => self, :choice => choice, :loser_choice => loser_choice)
 
-    puts "PPPPPPPPPPPPPP DEBUG 5 #{options.inspect}"
+    #puts "PPPPPPPPPPPPPP DEBUG 5 #{options.inspect}"
 
     if options[:appearance_lookup]==""
       options.delete(:appearance_lookup)
     end
     v = votes.create!(options.to_unsafe_h)
 
-    puts "PPPPPPPPPPPPPP DEBUG 6 #{v.inspect}"
+    #puts "PPPPPPPPPPPPPP DEBUG 6 #{v.inspect}"
 
     safely_associate_appearance(v, @appearance, old_visitor_identifier) if associate_appearance
     v
   end
 
   def skip!(options)
-    puts "DEBUG skipt! 1 #{options.inspect}"
+    #puts "DEBUG skipt! 1 #{options.inspect}"
     return nil if !options || !options[:prompt]
 
     prompt = options.delete(:prompt)
-    puts "DEBUG skipt! 2 prompt #{prompt.inspect}"
+    #puts "DEBUG skipt! 2 prompt #{prompt.inspect}"
 
     old_visitor_identifier = options.delete(:old_visitor_identifier)
 
     associate_appearance = false
-    puts "DEBUG skipt! 3 #{options.inspect}"
+    #puts "DEBUG skipt! 3 #{options.inspect}"
     if options[:appearance_lookup] and options[:appearance_lookup]!=""
       @appearance = prompt.appearances.find_by(lookup: options.delete(:appearance_lookup))
-      puts "DEBUG skipt! 4 #{@appearance}"
+      #puts "DEBUG skipt! 4 #{@appearance}"
       return nil unless @appearance
       # if the found appearance doesn't match this voter_id or the voter_id of
       # the old_visitor_identifier then don't proceed any further

@@ -564,33 +564,33 @@ class Question < ActiveRecord::Base
 
   def pop_prompt_queue
     algorithm = {"name" => "catchup"}
-    puts "--------------- 409 DEBUG 4.2.1.1"
+    #puts "--------------- 409 DEBUG 4.2.1.1"
     begin
-      puts "--------------- 409 DEBUG 4.2.1.2"
+      #puts "--------------- 409 DEBUG 4.2.1.2"
       selected_prompt = $redis.lpop(self.pq_key)
-      puts "--------------- 409 DEBUG 4.2.1.3"
+      #puts "--------------- 409 DEBUG 4.2.1.3"
 
       # if it starts with { decode as JSON
       if !selected_prompt.nil? && selected_prompt.start_with?("{")
-        puts "--------------- 409 DEBUG 4.2.1.4"
+        #puts "--------------- 409 DEBUG 4.2.1.4"
         p_json = ActiveSupport::JSON.decode(selected_prompt)
-        puts "--------------- 409 DEBUG 4.2.1.5"
+        #puts "--------------- 409 DEBUG 4.2.1.5"
         prompt_id = p_json["id"]
         algorithm = p_json["algorithm"]
       else
-        puts "--------------- 409 DEBUG 4.2.1.6"
+        #puts "--------------- 409 DEBUG 4.2.1.6"
         prompt_id = selected_prompt
-        puts "--------------- 409 DEBUG 4.2.1.7"
+        #puts "--------------- 409 DEBUG 4.2.1.7"
       end
-      puts "--------------- 409 DEBUG 4.2.1.8"
+      #puts "--------------- 409 DEBUG 4.2.1.8"
       prompt = prompt_id.nil? ? nil : Prompt.find(prompt_id.to_i)
-      puts "--------------- 409 DEBUG 4.2.1.9"
+      #puts "--------------- 409 DEBUG 4.2.1.9"
     end until (prompt.nil? || prompt.active?)
-    puts "--------------- 409 DEBUG 4.2.1.10"
+    #puts "--------------- 409 DEBUG 4.2.1.10"
     $redis.expire(self.pq_key, @@expire_prompt_cache_in_seconds)
-    puts "--------------- 409 DEBUG 4.2.1.11"
+    #puts "--------------- 409 DEBUG 4.2.1.11"
     prompt.algorithm = algorithm if prompt
-    puts "--------------- 409 DEBUG 4.2.1.12"
+    #puts "--------------- 409 DEBUG 4.2.1.12"
     prompt
   end
 
@@ -739,7 +739,7 @@ class Question < ActiveRecord::Base
   #
   # On success, this method always an appearance.
   def create_or_find_next_appearance(visitor, params, offset=0)
-    puts "--------------- 409 DEBUG 1"
+    #puts "--------------- 409 DEBUG 1"
     prompt = appearance = nil
     # We'll retry this block at most 4 times due to deadlocks.
     max_retries = 4
@@ -750,18 +750,18 @@ class Question < ActiveRecord::Base
     # entirety. We've only seen deadlocks in the call to record_appearnce.
     begin
       Appearance.transaction do
-        puts "--------------- 409 DEBUG 2"
+        #puts "--------------- 409 DEBUG 2"
         appearance = get_first_unanswered_appearance(visitor, offset)
-        puts "--------------- 409 DEBUG 3"
+        #puts "--------------- 409 DEBUG 3"
         if appearance.nil?
-          puts "--------------- 409 DEBUG 4"
+          #puts "--------------- 409 DEBUG 4"
           # Only choose prompt if we don't already have one. If we had to
           # retry this transaction due to a deadlock, a prompt may have been
           # selected previously.
           prompt = choose_prompt(:algorithm => params[:algorithm]) unless prompt
-          puts "--------------- 409 DEBUG 5"
+          #puts "--------------- 409 DEBUG 5"
           appearance = self.site.record_appearance(visitor, prompt)
-          puts "--------------- 409 DEBUG 6"
+          #puts "--------------- 409 DEBUG 6"
         end
       end
     rescue ActiveRecord::StatementInvalid => error
